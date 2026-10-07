@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package example;
+
+import "example/common.proto";
+import "google/api/annotations.proto";
+import "pckt/openapi/annotations.proto";
+
+message HelloRequest {
+  // First name
+  string name = 1 [(pckt.openapi.field) = {
+    example: "John"
+    min_length: 1
+  }];
+
+  Visibility visibility = 2;
+}
+
+message HelloResponse {
+  // The greeting.
+  string response = 1;
+}
+
+// Greetings
+service HelloService {
+  option (pckt.openapi.tag) = {name: "Hello"};
+
+  // Say hello.
+  //
+  // Returns a personalized greeting.
+  rpc Hello(HelloRequest) returns (HelloResponse) {
+    option (google.api.http) = {get: "/v1/hello"};
+  }
+
+  // Not exposed over HTTP.
+  rpc Internal(HelloRequest) returns (HelloResponse);
+}

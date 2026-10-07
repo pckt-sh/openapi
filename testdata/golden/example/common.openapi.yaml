@@ -1,0 +1,31 @@
+openapi: 3.1.0
+info:
+  title: example/common.proto
+  version: 0.0.0
+components:
+  schemas:
+    example.PageRequest:
+      description: Pagination parameters shared by list endpoints.
+      type: object
+      properties:
+        pageSize:
+          description: Maximum number of items to return.
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+          examples:
+            - 20
+        pageToken:
+          description: Token returned by a previous call.
+          type: string
+    example.Visibility:
+      description: |-
+        Visibility of a resource.
+        - `VISIBILITY_PUBLIC`: Visible to everyone.
+        - `VISIBILITY_PRIVATE`: Visible to the owner only.
+      type: string
+      enum:
+        - VISIBILITY_UNSPECIFIED
+        - VISIBILITY_PUBLIC
+        - VISIBILITY_PRIVATE

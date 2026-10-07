@@ -1,0 +1,18 @@
+version: v2
+inputs:
+  - directory: ./testdata/proto/
+plugins:
+  # One document per .proto file.
+  - local: ./bin/protoc-gen-pckt-openapi
+    out: ./testdata/generated/
+    opt:
+      - format=yaml
+  # A single merged document, `strategy: all` sends every file in one request.
+  - local: ./bin/protoc-gen-pckt-openapi
+    out: ./testdata/generated/
+    strategy: all
+    opt:
+      - merge=api.yaml
+      - title=Example API
+      - version=1.0.0
+      - server=https://api.example.com

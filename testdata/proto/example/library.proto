@@ -1,0 +1,188 @@
+syntax = "proto3";
+
+package example;
+
+import "example/common.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "pckt/openapi/annotations.proto";
+
+// A book in a shelf.
+message Book {
+  option (pckt.openapi.schema) = {
+    title: "Book"
+    example: "{\"name\": \"shelves/1/books/2\", \"title\": \"Dune\"}"
+    extensions: {
+      key: "x-resource"
+      value: {
+        struct_value: {
+          fields: {
+            key: "type"
+            value: {string_value: "library.example.com/Book"}
+          }
+          fields: {
+            key: "pattern"
+            value: {string_value: "shelves/{shelf}/books/{book}"}
+          }
+        }
+      }
+    }
+  };
+
+  // Resource name, `shelves/{shelf}/books/{book}`.
+  string name = 1 [(google.api.field_behavior) = IDENTIFIER];
+
+  string title = 2 [
+    (google.api.field_behavior) = REQUIRED,
+    (pckt.openapi.field) = {max_length: 256}
+  ];
+
+  // Contact email of the author.
+  string author_email = 3 [(pckt.openapi.field) = {format: FIELD_FORMAT_EMAIL}];
+
+  int64 page_count = 4 [(pckt.openapi.field) = {
+    extensions: {
+      key: "x-go-type"
+      value: {string_value: "int"}
+    }
+    extensions: {
+      key: "x-order"
+      value: {number_value: 4}
+    }
+  }];
+
+  // Number of sales, exposed as a JSON number.
+  int64 sales = 5 [(pckt.openapi.field) = {type: FIELD_TYPE_INT64}];
+
+  repeated string tags = 6 [(pckt.openapi.field) = {max_items: 10}];
+
+  map<string, string> labels = 7;
+
+  Visibility visibility = 8;
+
+  google.protobuf.Timestamp create_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  google.protobuf.DoubleValue rating = 10;
+
+  oneof format {
+    Paperback paperback = 11;
+    string ebook_url = 12 [(pckt.openapi.field) = {format: FIELD_FORMAT_URI}];
+  }
+
+  // Internal bookkeeping, never exposed.
+  string internal_note = 13 [(pckt.openapi.field) = {hidden: true}];
+
+  Chapter table_of_contents = 14;
+
+  string isbn = 15 [deprecated = true];
+
+  message Paperback {
+    uint32 weight_grams = 1;
+  }
+}
+
+// A recursive chapter tree.
+message Chapter {
+  string title = 1;
+  repeated Chapter sections = 2;
+}
+
+message GetBookRequest {
+  string name = 1;
+}
+
+message ListBooksRequest {
+  string parent = 1;
+  PageRequest page = 2;
+  repeated Visibility visibility = 3;
+  google.protobuf.Timestamp updated_after = 4;
+}
+
+message ListBooksResponse {
+  repeated Book books = 1;
+  string next_page_token = 2;
+}
+
+message CreateBookRequest {
+  string parent = 1;
+  Book book = 2;
+  // Client-assigned identifier.
+  string book_id = 3;
+}
+
+message UpdateBookRequest {
+  Book book = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message DeleteBookRequest {
+  string name = 1;
+  bool force = 2;
+}
+
+message ArchiveBookRequest {
+  string name = 1;
+  string reason = 2;
+}
+
+service LibraryService {
+  // Get a book.
+  rpc GetBook(GetBookRequest) returns (Book) {
+    option (google.api.http) = {get: "/v1/{name=shelves/*/books/*}"};
+  }
+
+  // List books of a shelf.
+  rpc ListBooks(ListBooksRequest) returns (ListBooksResponse) {
+    option (google.api.http) = {get: "/v1/{parent=shelves/*}/books"};
+  }
+
+  rpc CreateBook(CreateBookRequest) returns (Book) {
+    option (google.api.http) = {
+      post: "/v1/{parent=shelves/*}/books"
+      body: "book"
+    };
+    option (pckt.openapi.operation) = {
+      summary: "Create a book"
+      operation_id: "createBook"
+      extensions: {
+        key: "x-rate-limit"
+        value: {number_value: 10}
+      }
+      extensions: {
+        key: "x-internal"
+        value: {bool_value: false}
+      }
+    };
+  }
+
+  rpc UpdateBook(UpdateBookRequest) returns (Book) {
+    option (google.api.http) = {
+      patch: "/v1/{book.name=shelves/*/books/*}"
+      body: "book"
+    };
+  }
+
+  rpc DeleteBook(DeleteBookRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{name=shelves/*/books/*}"
+      additional_bindings: {post: "/v1/{name=shelves/*/books/*}:delete"}
+    };
+    option deprecated = true;
+  }
+
+  rpc ArchiveBook(ArchiveBookRequest) returns (Book) {
+    option (google.api.http) = {
+      post: "/v1/{name=shelves/*/books/*}:archive"
+      body: "*"
+    };
+  }
+
+  rpc Secret(GetBookRequest) returns (Book) {
+    option (google.api.http) = {get: "/v1/secret"};
+    option (pckt.openapi.operation) = {hidden: true};
+  }
+}

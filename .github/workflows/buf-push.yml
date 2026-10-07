@@ -1,0 +1,22 @@
+name: Push to buf.build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+      # Only the named module (proto/, buf.build/pckt/openapi) is pushed, not testdata.
+      - run: buf push --exclude-unnamed --git-metadata --create --create-visibility public
+        env:
+          BUF_TOKEN: ${{ secrets.BUF_TOKEN }}

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "Files not formatted with gofmt:" && echo "$unformatted" && exit 1
+          fi
+      - run: go mod tidy -diff
+      - run: go vet ./...
+      - run: go test -race ./...
+
+  buf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+      - run: buf format --diff --exit-code
+      - run: buf lint
+      - name: buf breaking
+        if: github.event_name == 'pull_request'
+        run: buf breaking --against "https://github.com/${{ github.repository }}.git#branch=${{ github.base_ref }}"
+      - name: Generated Go code is up to date
+        run: |
+          buf generate --template ./proto/buf.gen.yaml ./proto
+          git diff --exit-code -- proto
+      - name: Test descriptor set is up to date
+        run: |
+          buf build -o ./testdata/descriptor.binpb
+          git diff --exit-code -- testdata/descriptor.binpb || (echo "Run 'task golden' and commit the result" && exit 1)

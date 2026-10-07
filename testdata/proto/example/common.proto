@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package example;
+
+import "pckt/openapi/annotations.proto";
+
+// Pagination parameters shared by list endpoints.
+message PageRequest {
+  // Maximum number of items to return.
+  int32 page_size = 1 [(pckt.openapi.field) = {
+    minimum: 1
+    maximum: 100
+    example: "20"
+  }];
+
+  // Token returned by a previous call.
+  string page_token = 2;
+}
+
+// Visibility of a resource.
+enum Visibility {
+  VISIBILITY_UNSPECIFIED = 0;
+  // Visible to everyone.
+  VISIBILITY_PUBLIC = 1;
+  // Visible to the owner only.
+  VISIBILITY_PRIVATE = 2;
+}

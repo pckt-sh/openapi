@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package pckt.openapi;
+
+import "google/protobuf/descriptor.proto";
+import "pckt/openapi/options.proto";
+
+option go_package = "github.com/pckt-sh/openapi/proto/pckt/openapi";
+
+extend google.protobuf.FieldOptions {
+  pckt.openapi.FieldOptions field = 60200;
+}
+
+extend google.protobuf.MessageOptions {
+  pckt.openapi.SchemaOptions schema = 60201;
+}
+
+extend google.protobuf.MethodOptions {
+  pckt.openapi.OperationOptions operation = 60202;
+}
+
+extend google.protobuf.ServiceOptions {
+  pckt.openapi.TagOptions tag = 60203;
+}

@@ -1,0 +1,91 @@
+openapi: 3.1.0
+info:
+  title: example/hello.proto
+  version: 0.0.0
+paths:
+  /v1/hello:
+    get:
+      tags:
+        - Hello
+      summary: Say hello.
+      description: Returns a personalized greeting.
+      operationId: HelloService_Hello
+      parameters:
+        - name: name
+          in: query
+          description: First name
+          schema:
+            type: string
+            minLength: 1
+            examples:
+              - John
+        - name: visibility
+          in: query
+          schema:
+            $ref: '#/components/schemas/example.Visibility'
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example.HelloResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.rpc.Status'
+components:
+  schemas:
+    example.HelloRequest:
+      type: object
+      properties:
+        name:
+          description: First name
+          type: string
+          minLength: 1
+          examples:
+            - John
+        visibility:
+          $ref: '#/components/schemas/example.Visibility'
+    example.HelloResponse:
+      type: object
+      properties:
+        response:
+          description: The greeting.
+          type: string
+    example.Visibility:
+      description: |-
+        Visibility of a resource.
+        - `VISIBILITY_PUBLIC`: Visible to everyone.
+        - `VISIBILITY_PRIVATE`: Visible to the owner only.
+      type: string
+      enum:
+        - VISIBILITY_UNSPECIFIED
+        - VISIBILITY_PUBLIC
+        - VISIBILITY_PRIVATE
+    google.rpc.Status:
+      description: The `Status` type defines a logical error model, see https://google.aip.dev/193.
+      type: object
+      properties:
+        code:
+          description: The status code, which should be an enum value of google.rpc.Code.
+          type: integer
+          format: int32
+        message:
+          description: A developer-facing error message.
+          type: string
+        details:
+          description: A list of messages that carry the error details.
+          type: array
+          items:
+            type: object
+            properties:
+              '@type':
+                description: Type URL of the serialized message.
+                type: string
+            additionalProperties: {}
+tags:
+  - name: Hello
+    description: Greetings

@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package pckt.openapi;
+
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/pckt-sh/openapi/proto/pckt/openapi";
+
+enum FieldType {
+  FIELD_TYPE_UNSPECIFIED = 0;
+
+  // Number
+  FIELD_TYPE_FLOAT = 1;
+  FIELD_TYPE_DOUBLE = 2;
+  FIELD_TYPE_INT32 = 3;
+  FIELD_TYPE_INT64 = 4;
+
+  // Array
+  FIELD_TYPE_ARRAY = 5;
+
+  // Object
+  FIELD_TYPE_OBJECT = 6;
+}
+
+enum FieldFormat {
+  FIELD_FORMAT_UNSPECIFIED = 0;
+
+  // Date and times
+  FIELD_FORMAT_DATE_TIME = 1;
+  FIELD_FORMAT_TIME = 2;
+  FIELD_FORMAT_DATE = 3;
+  FIELD_FORMAT_DURATION = 4;
+
+  // Email addresses
+  FIELD_FORMAT_EMAIL = 100;
+  FIELD_FORMAT_IDN_EMAIL = 101;
+
+  // Hostnames
+  FIELD_FORMAT_HOSTNAME = 200;
+  FIELD_FORMAT_IDN_HOSTNAME = 201;
+
+  // IP addresses
+  FIELD_FORMAT_IPV4 = 300;
+  FIELD_FORMAT_IPV6 = 301;
+
+  // Resource identifiers
+  FIELD_FORMAT_UUID = 400;
+  FIELD_FORMAT_URI = 401;
+  FIELD_FORMAT_URI_REFERENCE = 402;
+  FIELD_FORMAT_IRI = 403;
+  FIELD_FORMAT_IRI_REFERENCE = 404;
+
+  // URI template
+  FIELD_FORMAT_URI_TEMPLATE = 500;
+
+  // JSON pointer
+  FIELD_FORMAT_JSON_POINTER = 600;
+  FIELD_FORMAT_RELATIVE_JSON_POINTER = 601;
+
+  // Regex
+  FIELD_FORMAT_REGEX = 700;
+}
+
+// Descriptions are always taken from leading comments of the annotated element.
+
+message FieldOptions {
+  reserved 1;
+  reserved "description";
+
+  // Value example (always in string, but casted to correct type during generation)
+  string example = 2;
+
+  // Field type, extracted from field type when empty
+  FieldType type = 3;
+
+  // Well-known format, extract from field type when empty
+  FieldFormat format = 4;
+
+  // Regex pattern
+  string pattern = 5;
+
+  // Set the field as deprecated
+  bool deprecated = 6;
+
+  // Omit the field from the generated schema
+  bool hidden = 7;
+
+  // Mark the field as required in the parent schema
+  bool required = 8;
+
+  // Field is only sent in responses
+  bool read_only = 9;
+
+  // Field is only sent in requests
+  bool write_only = 10;
+
+  // Numeric constraints
+  optional double minimum = 11;
+  optional double maximum = 12;
+
+  // String length constraints
+  optional uint64 min_length = 13;
+  optional uint64 max_length = 14;
+
+  // Repeated field constraints
+  optional uint64 min_items = 15;
+  optional uint64 max_items = 16;
+
+  // OpenAPI extensions added to the field schema, keys must start with `x-`
+  map<string, google.protobuf.Value> extensions = 17;
+}
+
+message SchemaOptions {
+  reserved 2;
+  reserved "description";
+
+  // Schema title
+  string title = 1;
+
+  // The schema type, very likely `object`
+  FieldType type = 3;
+
+  // Omit the message from the generated schemas, fields referencing it are omitted too
+  bool hidden = 4;
+
+  // Example of the whole message, as JSON
+  string example = 5;
+
+  // Set the schema as deprecated
+  bool deprecated = 6;
+
+  // OpenAPI extensions added to the message schema, keys must start with `x-`
+  map<string, google.protobuf.Value> extensions = 7;
+}
+
+message OperationOptions {
+  reserved 2;
+  reserved "description";
+
+  // Short summary, defaults to the first line of the method leading comments
+  string summary = 1;
+
+  // Tags, defaults to the service tag
+  repeated string tags = 3;
+
+  // Operation ID, defaults to `Service_Method`
+  string operation_id = 4;
+
+  // Set the operation as deprecated
+  bool deprecated = 5;
+
+  // Omit the operation from the generated document
+  bool hidden = 6;
+
+  // OpenAPI extensions added to the operation, keys must start with `x-`
+  map<string, google.protobuf.Value> extensions = 7;
+}
+
+message ExternalDocs {
+  string description = 1;
+  string url = 2;
+}
+
+message TagOptions {
+  reserved 2;
+  reserved "description";
+
+  // Tag name, defaults to the service name
+  string name = 1;
+
+  ExternalDocs external_docs = 3;
+}

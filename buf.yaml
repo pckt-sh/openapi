@@ -1,0 +1,17 @@
+version: v2
+modules:
+  - path: ./proto/
+    name: buf.build/pckt/openapi
+  - path: ./testdata/proto/
+deps:
+  - buf.build/googleapis/googleapis
+lint:
+  use:
+    - STANDARD
+  except:
+    - PACKAGE_VERSION_SUFFIX
+  ignore:
+    - testdata/proto
+breaking:
+  use:
+    - FILE

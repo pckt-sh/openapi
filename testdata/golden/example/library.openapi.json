@@ -1,0 +1,673 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "example/library.proto",
+    "version": "0.0.0"
+  },
+  "paths": {
+    "/v1/{book.name}": {
+      "patch": {
+        "tags": [
+          "LibraryService"
+        ],
+        "operationId": "LibraryService_UpdateBook",
+        "parameters": [
+          {
+            "name": "book.name",
+            "in": "path",
+            "description": "Resource name, `shelves/{shelf}/books/{book}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^shelves/[^/]+/books/[^/]+$"
+            }
+          },
+          {
+            "name": "updateMask",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/example.Book"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/example.Book"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/{name}": {
+      "get": {
+        "tags": [
+          "LibraryService"
+        ],
+        "summary": "Get a book.",
+        "operationId": "LibraryService_GetBook",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^shelves/[^/]+/books/[^/]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/example.Book"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "LibraryService"
+        ],
+        "operationId": "LibraryService_DeleteBook",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^shelves/[^/]+/books/[^/]+$"
+            }
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/v1/{name}:archive": {
+      "post": {
+        "tags": [
+          "LibraryService"
+        ],
+        "operationId": "LibraryService_ArchiveBook",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^shelves/[^/]+/books/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/example.Book"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/{name}:delete": {
+      "post": {
+        "tags": [
+          "LibraryService"
+        ],
+        "operationId": "LibraryService_DeleteBook_1",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^shelves/[^/]+/books/[^/]+$"
+            }
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/v1/{parent}/books": {
+      "get": {
+        "tags": [
+          "LibraryService"
+        ],
+        "summary": "List books of a shelf.",
+        "operationId": "LibraryService_ListBooks",
+        "parameters": [
+          {
+            "name": "parent",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^shelves/[^/]+$"
+            }
+          },
+          {
+            "name": "page.pageSize",
+            "in": "query",
+            "description": "Maximum number of items to return.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100,
+              "examples": [
+                20
+              ]
+            }
+          },
+          {
+            "name": "page.pageToken",
+            "in": "query",
+            "description": "Token returned by a previous call.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/example.Visibility"
+              }
+            }
+          },
+          {
+            "name": "updatedAfter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/example.ListBooksResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "LibraryService"
+        ],
+        "summary": "Create a book",
+        "operationId": "createBook",
+        "parameters": [
+          {
+            "name": "parent",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^shelves/[^/]+$"
+            }
+          },
+          {
+            "name": "bookId",
+            "in": "query",
+            "description": "Client-assigned identifier.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/example.Book"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/example.Book"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/google.rpc.Status"
+                }
+              }
+            }
+          }
+        },
+        "x-internal": false,
+        "x-rate-limit": 10
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "example.ArchiveBookRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "example.Book": {
+        "title": "Book",
+        "description": "A book in a shelf.",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Resource name, `shelves/{shelf}/books/{book}`.",
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "authorEmail": {
+            "description": "Contact email of the author.",
+            "type": "string",
+            "format": "email"
+          },
+          "pageCount": {
+            "type": "string",
+            "format": "int64",
+            "x-go-type": "int",
+            "x-order": 4
+          },
+          "sales": {
+            "description": "Number of sales, exposed as a JSON number.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10
+          },
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/example.Visibility"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "rating": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "double"
+          },
+          "paperback": {
+            "$ref": "#/components/schemas/example.Book.Paperback"
+          },
+          "ebookUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "tableOfContents": {
+            "$ref": "#/components/schemas/example.Chapter"
+          },
+          "isbn": {
+            "type": "string",
+            "deprecated": true
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "examples": [
+          {
+            "name": "shelves/1/books/2",
+            "title": "Dune"
+          }
+        ],
+        "x-resource": {
+          "pattern": "shelves/{shelf}/books/{book}",
+          "type": "library.example.com/Book"
+        }
+      },
+      "example.Book.Paperback": {
+        "type": "object",
+        "properties": {
+          "weightGrams": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        }
+      },
+      "example.Chapter": {
+        "description": "A recursive chapter tree.",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/example.Chapter"
+            }
+          }
+        }
+      },
+      "example.CreateBookRequest": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "type": "string"
+          },
+          "book": {
+            "$ref": "#/components/schemas/example.Book"
+          },
+          "bookId": {
+            "description": "Client-assigned identifier.",
+            "type": "string"
+          }
+        }
+      },
+      "example.DeleteBookRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "force": {
+            "type": "boolean"
+          }
+        }
+      },
+      "example.GetBookRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "example.ListBooksRequest": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "type": "string"
+          },
+          "page": {
+            "$ref": "#/components/schemas/example.PageRequest"
+          },
+          "visibility": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/example.Visibility"
+            }
+          },
+          "updatedAfter": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "example.ListBooksResponse": {
+        "type": "object",
+        "properties": {
+          "books": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/example.Book"
+            }
+          },
+          "nextPageToken": {
+            "type": "string"
+          }
+        }
+      },
+      "example.PageRequest": {
+        "description": "Pagination parameters shared by list endpoints.",
+        "type": "object",
+        "properties": {
+          "pageSize": {
+            "description": "Maximum number of items to return.",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 100,
+            "examples": [
+              20
+            ]
+          },
+          "pageToken": {
+            "description": "Token returned by a previous call.",
+            "type": "string"
+          }
+        }
+      },
+      "example.UpdateBookRequest": {
+        "type": "object",
+        "properties": {
+          "book": {
+            "$ref": "#/components/schemas/example.Book"
+          },
+          "updateMask": {
+            "type": "string"
+          }
+        }
+      },
+      "example.Visibility": {
+        "description": "Visibility of a resource.\n- `VISIBILITY_PUBLIC`: Visible to everyone.\n- `VISIBILITY_PRIVATE`: Visible to the owner only.",
+        "type": "string",
+        "enum": [
+          "VISIBILITY_UNSPECIFIED",
+          "VISIBILITY_PUBLIC",
+          "VISIBILITY_PRIVATE"
+        ]
+      },
+      "google.rpc.Status": {
+        "description": "The `Status` type defines a logical error model, see https://google.aip.dev/193.",
+        "type": "object",
+        "properties": {
+          "code": {
+            "description": "The status code, which should be an enum value of google.rpc.Code.",
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "description": "A developer-facing error message.",
+            "type": "string"
+          },
+          "details": {
+            "description": "A list of messages that carry the error details.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "@type": {
+                  "description": "Type URL of the serialized message.",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": {}
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "LibraryService"
+    }
+  ]
+}

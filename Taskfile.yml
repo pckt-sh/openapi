@@ -1,0 +1,37 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build protoc-gen-pckt-openapi and pckt-openapi-merge
+    cmds:
+      - go build -o ./bin/protoc-gen-pckt-openapi ./cmd/protoc-gen-pckt-openapi
+      - go build -o ./bin/pckt-openapi-merge ./cmd/pckt-openapi-merge
+
+  build-annotations:
+    desc: Generate pckt.openapi annotations
+    cmds:
+      - buf generate --template ./proto/buf.gen.yaml ./proto
+
+  descriptor:
+    desc: Rebuild the descriptor set used by the generator tests
+    cmds:
+      - buf build -o ./testdata/descriptor.binpb
+
+  golden:
+    desc: Update golden files after an intended output change
+    cmds:
+      - task: descriptor
+      # merge goldens are built from the generator ones, update them in order
+      - go test ./internal/gen -update
+      - go test ./internal/merge -update
+
+  test:
+    desc: Run unit tests, then generate and merge OpenAPI documents for testdata
+    cmds:
+      - task: build
+      - go test ./...
+      - rm -rf ./testdata/generated
+      - buf generate --template ./testdata/buf.gen.yaml
+      - ./bin/pckt-openapi-merge -o ./testdata/generated/openapi.yaml -title "Example API" -version 1.0.0 -server https://api.example.com ./testdata/generated
+      # merging in the plugin (strategy: all) and with the CLI must agree
+      - cmp ./testdata/generated/api.yaml ./testdata/generated/openapi.yaml
