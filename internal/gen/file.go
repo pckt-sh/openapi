@@ -168,14 +168,12 @@ func (g *fileGen) addMethod(svc protoreflect.ServiceDescriptor, m protoreflect.M
 			op.OperationID += "_" + strconv.Itoa(i)
 		}
 		op.Tags = []string{tag}
-		op.Summary, op.Description = splitSummary(comments(m))
+		op.Description = comments(m)
 		if mo, ok := opts.(interface{ GetDeprecated() bool }); ok {
 			op.Deprecated = mo.GetDeprecated()
 		}
 		if oo != nil {
-			if oo.GetSummary() != "" {
-				op.Summary = oo.GetSummary()
-			}
+			op.Summary = oo.GetSummary()
 			if len(oo.GetTags()) > 0 {
 				op.Tags = oo.GetTags()
 			}

@@ -69,7 +69,7 @@
         "tags": [
           "LibraryService"
         ],
-        "summary": "Get a book.",
+        "description": "Get a book.",
         "operationId": "LibraryService_GetBook",
         "parameters": [
           {
@@ -171,7 +171,7 @@
         "tags": [
           "LibraryService"
         ],
-        "summary": "Upload the cover image of a book.",
+        "description": "Upload the cover image of a book.",
         "operationId": "LibraryService_UploadCover",
         "parameters": [
           {
@@ -329,7 +329,7 @@
         "tags": [
           "LibraryService"
         ],
-        "summary": "Export a book as CSV.",
+        "description": "Export a book as CSV.",
         "operationId": "LibraryService_ExportBook",
         "parameters": [
           {
@@ -373,7 +373,7 @@
         "tags": [
           "LibraryService"
         ],
-        "summary": "List books of a shelf.",
+        "description": "List books of a shelf, ordered by creation time\nwith the most recent first.\n\nUse `page` to paginate.",
         "operationId": "LibraryService_ListBooks",
         "parameters": [
           {
@@ -454,6 +454,7 @@
           "LibraryService"
         ],
         "summary": "Create a book",
+        "description": "Create a book in a shelf, its identifier is chosen\nby the client when `book_id` is set.",
         "operationId": "createBook",
         "parameters": [
           {

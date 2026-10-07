@@ -21,10 +21,3 @@ func cleanComment(c string) string {
 	}
 	return strings.TrimSpace(strings.Join(lines, "\n"))
 }
-
-// splitSummary splits a comment into its first line, used as summary, and
-// the remaining text, used as description.
-func splitSummary(c string) (string, string) {
-	summary, rest, _ := strings.Cut(c, "\n")
-	return strings.TrimSpace(summary), strings.TrimSpace(rest)
-}

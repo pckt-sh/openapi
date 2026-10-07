@@ -872,7 +872,7 @@ func (x *OperationOptions) ClearResponseExample() {
 type OperationOptions_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	// Short summary, defaults to the first line of the method leading comments
+	// Short summary; the description is always the method leading comments
 	Summary string
 	// Tags, defaults to the service tag
 	Tags []string

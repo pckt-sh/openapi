@@ -10,8 +10,10 @@ paths:
     get:
       tags:
         - Hello
-      summary: Say hello.
-      description: Returns a personalized greeting.
+      description: |-
+        Say hello.
+
+        Returns a personalized greeting.
       operationId: HelloService_Hello
       parameters:
         - name: name
@@ -79,7 +81,7 @@ paths:
     get:
       tags:
         - LibraryService
-      summary: Get a book.
+      description: Get a book.
       operationId: LibraryService_GetBook
       parameters:
         - name: name
@@ -145,7 +147,7 @@ paths:
     put:
       tags:
         - LibraryService
-      summary: Upload the cover image of a book.
+      description: Upload the cover image of a book.
       operationId: LibraryService_UploadCover
       parameters:
         - name: name
@@ -242,7 +244,7 @@ paths:
     get:
       tags:
         - LibraryService
-      summary: Export a book as CSV.
+      description: Export a book as CSV.
       operationId: LibraryService_ExportBook
       parameters:
         - name: name
@@ -272,7 +274,11 @@ paths:
     get:
       tags:
         - LibraryService
-      summary: List books of a shelf.
+      description: |-
+        List books of a shelf, ordered by creation time
+        with the most recent first.
+
+        Use `page` to paginate.
       operationId: LibraryService_ListBooks
       parameters:
         - name: parent
@@ -324,6 +330,9 @@ paths:
       tags:
         - LibraryService
       summary: Create a book
+      description: |-
+        Create a book in a shelf, its identifier is chosen
+        by the client when `book_id` is set.
       operationId: createBook
       parameters:
         - name: parent

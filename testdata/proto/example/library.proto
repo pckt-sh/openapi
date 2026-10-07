@@ -148,11 +148,16 @@ service LibraryService {
     };
   }
 
-  // List books of a shelf.
+  // List books of a shelf, ordered by creation time
+  // with the most recent first.
+  //
+  // Use `page` to paginate.
   rpc ListBooks(ListBooksRequest) returns (ListBooksResponse) {
     option (google.api.http) = {get: "/v1/{parent=shelves/*}/books"};
   }
 
+  // Create a book in a shelf, its identifier is chosen
+  // by the client when `book_id` is set.
   rpc CreateBook(CreateBookRequest) returns (Book) {
     option (google.api.http) = {
       post: "/v1/{parent=shelves/*}/books"

@@ -144,7 +144,8 @@ Import `pckt/openapi/annotations.proto` from the buf module `buf.build/pckt/open
 
 **Descriptions always come from leading comments** of the annotated element
 (message, field, enum, enum value, method, service); there is no description option.
-For methods, the first comment line is the summary, the rest the description.
+For methods, the description is the full comment; the summary is only set by
+the `summary` option of `(pckt.openapi.operation)`.
 
 ```proto
 // A book in a shelf.
@@ -315,7 +316,7 @@ internal/gen                 the generator
   file.go                    fileGen: services, google.api.http → operations and parameters
   examples.go                request/response examples, content types, google.api.HttpBody
   schema.go                  messages, fields, enums, well-known types → schemas; annotations
-  comments.go                leading comment cleaning, summary/description split
+  comments.go                leading comment cleaning
 internal/openapi             the OpenAPI 3.1 document model written by the generator
   node.go                    ordered JSON values (yaml.Node) and their JSON encoding
 internal/merge               the merger, shared by the CLI and the merge option

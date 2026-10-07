@@ -685,7 +685,7 @@ func (b0 SchemaOptions_builder) Build() *SchemaOptions {
 
 type OperationOptions struct {
 	state protoimpl.MessageState `protogen:"hybrid.v1"`
-	// Short summary, defaults to the first line of the method leading comments
+	// Short summary; the description is always the method leading comments
 	Summary string `protobuf:"bytes,1,opt,name=summary,proto3" json:"summary,omitempty"`
 	// Tags, defaults to the service tag
 	Tags []string `protobuf:"bytes,3,rep,name=tags,proto3" json:"tags,omitempty"`
@@ -871,7 +871,7 @@ func (x *OperationOptions) ClearResponseExample() {
 type OperationOptions_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	// Short summary, defaults to the first line of the method leading comments
+	// Short summary; the description is always the method leading comments
 	Summary string
 	// Tags, defaults to the service tag
 	Tags []string

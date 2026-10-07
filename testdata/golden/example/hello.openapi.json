@@ -10,8 +10,7 @@
         "tags": [
           "Hello"
         ],
-        "summary": "Say hello.",
-        "description": "Returns a personalized greeting.",
+        "description": "Say hello.\n\nReturns a personalized greeting.",
         "operationId": "HelloService_Hello",
         "parameters": [
           {

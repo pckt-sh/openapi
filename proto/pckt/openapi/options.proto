@@ -137,7 +137,7 @@ message OperationOptions {
   reserved 2;
   reserved "description";
 
-  // Short summary, defaults to the first line of the method leading comments
+  // Short summary; the description is always the method leading comments
   string summary = 1;
 
   // Tags, defaults to the service tag

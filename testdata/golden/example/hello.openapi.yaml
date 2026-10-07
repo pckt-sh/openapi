@@ -7,8 +7,10 @@ paths:
     get:
       tags:
         - Hello
-      summary: Say hello.
-      description: Returns a personalized greeting.
+      description: |-
+        Say hello.
+
+        Returns a personalized greeting.
       operationId: HelloService_Hello
       parameters:
         - name: name
