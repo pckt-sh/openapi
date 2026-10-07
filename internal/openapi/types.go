@@ -110,7 +110,8 @@ type RequestBody struct {
 }
 
 type MediaType struct {
-	Schema *Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
+	Schema  *Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
+	Example any     `json:"example,omitempty" yaml:"example,omitempty"`
 }
 
 type Response struct {

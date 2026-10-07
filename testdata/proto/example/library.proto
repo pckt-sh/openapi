@@ -5,6 +5,7 @@ package example;
 import "example/common.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
+import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
@@ -124,6 +125,15 @@ message DeleteBookRequest {
   bool force = 2;
 }
 
+message ExportBookRequest {
+  string name = 1;
+}
+
+message UploadCoverRequest {
+  string name = 1;
+  google.api.HttpBody cover = 2;
+}
+
 message ArchiveBookRequest {
   string name = 1;
   string reason = 2;
@@ -133,6 +143,9 @@ service LibraryService {
   // Get a book.
   rpc GetBook(GetBookRequest) returns (Book) {
     option (google.api.http) = {get: "/v1/{name=shelves/*/books/*}"};
+    option (pckt.openapi.operation) = {
+      response_example: {file: "library/book.json"}
+    };
   }
 
   // List books of a shelf.
@@ -148,6 +161,8 @@ service LibraryService {
     option (pckt.openapi.operation) = {
       summary: "Create a book"
       operation_id: "createBook"
+      request_example: {file: "library/create_book.yaml"}
+      response_example: {value: "{\"name\": \"shelves/1/books/3\", \"title\": \"Dune Messiah\"}"}
       extensions: {
         key: "x-rate-limit"
         value: {number_value: 10}
@@ -179,6 +194,24 @@ service LibraryService {
       post: "/v1/{name=shelves/*/books/*}:archive"
       body: "*"
     };
+  }
+
+  // Export a book as CSV.
+  rpc ExportBook(ExportBookRequest) returns (google.api.HttpBody) {
+    option (google.api.http) = {get: "/v1/{name=shelves/*/books/*}:export"};
+    option (pckt.openapi.operation) = {
+      response_content_type: "text/csv"
+      response_example: {file: "library/export.csv"}
+    };
+  }
+
+  // Upload the cover image of a book.
+  rpc UploadCover(UploadCoverRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/{name=shelves/*/books/*}/cover"
+      body: "cover"
+    };
+    option (pckt.openapi.operation) = {request_content_type: "image/png"};
   }
 
   rpc Secret(GetBookRequest) returns (Book) {

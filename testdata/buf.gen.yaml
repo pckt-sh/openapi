@@ -7,6 +7,7 @@ plugins:
     out: ./testdata/generated/
     opt:
       - format=yaml
+      - examples_dir=testdata/examples
   # A single merged document, `strategy: all` sends every file in one request.
   - local: ./bin/protoc-gen-pckt-openapi
     out: ./testdata/generated/
@@ -15,4 +16,5 @@ plugins:
       - merge=api.yaml
       - title=Example API
       - version=1.0.0
-      - server=https://api.example.com
+      - server=https://api.example.com|REST API
+      - examples_dir=testdata/examples

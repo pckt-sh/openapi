@@ -65,7 +65,7 @@ func validate(t *testing.T, data []byte) {
 
 func TestGolden(t *testing.T) {
 	inputs := goldenInputs(t)
-	got := mustMerge(t, inputs, Options{Title: "Example API", Version: "1.0.0", Servers: []string{"https://api.example.com"}})
+	got := mustMerge(t, inputs, Options{Title: "Example API", Version: "1.0.0", Servers: []Server{{URL: "https://api.example.com", Description: "REST API"}}})
 	validate(t, []byte(got))
 
 	path := filepath.Join(goldenDir, "openapi.yaml")
@@ -88,7 +88,7 @@ func TestGolden(t *testing.T) {
 	for i, in := range inputs {
 		reversed[len(inputs)-1-i] = in
 	}
-	again := mustMerge(t, reversed, Options{Title: "Example API", Version: "1.0.0", Servers: []string{"https://api.example.com"}})
+	again := mustMerge(t, reversed, Options{Title: "Example API", Version: "1.0.0", Servers: []Server{{URL: "https://api.example.com", Description: "REST API"}}})
 	withoutTags := func(s string) string { return s[:strings.Index(s, "\ntags:")] }
 	if withoutTags(again) != withoutTags(got) {
 		t.Error("merged paths or components depend on input order")
@@ -98,7 +98,7 @@ func TestGolden(t *testing.T) {
 // TestGoldenJSON merges the JSON documents of the generator into JSON, and
 // checks it holds the same document as the YAML merge.
 func TestGoldenJSON(t *testing.T) {
-	opts := Options{Title: "Example API", Version: "1.0.0", Servers: []string{"https://api.example.com"}}
+	opts := Options{Title: "Example API", Version: "1.0.0", Servers: []Server{{URL: "https://api.example.com", Description: "REST API"}}}
 	doc, err := Merge(goldenInputsExt(t, "json"), opts)
 	if err != nil {
 		t.Fatal(err)
@@ -248,12 +248,12 @@ x-custom: 1
 	got := mustMerge(t, []Input{{"a", []byte(docA)}}, Options{
 		Base:     &Input{Name: "base", Data: []byte(base)},
 		Version:  "2.1.0",
-		Servers:  []string{"https://base.example.com", "https://other.example.com"},
+		Servers:  []Server{{URL: "https://base.example.com"}, {URL: "https://other.example.com", Description: "Other"}},
 		Warnings: &warnings,
 	})
 	validate(t, []byte(got))
 
-	for _, want := range []string{"title: Base API", "version: 2.1.0", "email: api@example.com", "bearer:", "x-custom: 1", "https://other.example.com"} {
+	for _, want := range []string{"title: Base API", "version: 2.1.0", "email: api@example.com", "bearer:", "x-custom: 1", "url: https://other.example.com\n    description: Other"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("merged document misses %q:\n%s", want, got)
 		}
@@ -263,5 +263,21 @@ x-custom: 1
 	}
 	if !strings.HasPrefix(got, "openapi: 3.1.0\ninfo:") {
 		t.Errorf("unexpected top-level order:\n%s", got)
+	}
+}
+
+func TestParseServer(t *testing.T) {
+	for in, want := range map[string]Server{
+		"https://api.pckt.sh":                {URL: "https://api.pckt.sh"},
+		"https://grpc.pckt.sh|gRPC endpoint": {URL: "https://grpc.pckt.sh", Description: "gRPC endpoint"},
+		" https://a.sh | A ":                 {URL: "https://a.sh", Description: "A"},
+	} {
+		got, err := ParseServer(in)
+		if err != nil || got != want {
+			t.Errorf("ParseServer(%q) = %+v, %v, want %+v", in, got, err, want)
+		}
+	}
+	if _, err := ParseServer("|desc"); err == nil {
+		t.Error("expected error for missing URL")
 	}
 }

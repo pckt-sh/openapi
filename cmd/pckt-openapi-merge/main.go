@@ -42,13 +42,19 @@ func run() error {
 	flag.StringVar(&opts.Title, "title", "", "info.title of the merged document")
 	flag.StringVar(&opts.Version, "version", "", "info.version of the merged document")
 	flag.StringVar(&opts.Description, "description", "", "info.description of the merged document")
-	flag.Var(&servers, "server", "server URL, can be repeated")
+	flag.Var(&servers, "server", "server `URL[|description]`, can be repeated")
 	flag.Usage = func() {
 		fmt.Fprintln(flag.CommandLine.Output(), "usage: pckt-openapi-merge [flags] <files or dirs...>")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	opts.Servers = servers
+	for _, s := range servers {
+		srv, err := merge.ParseServer(s)
+		if err != nil {
+			return err
+		}
+		opts.Servers = append(opts.Servers, srv)
+	}
 	opts.Warnings = os.Stderr
 
 	if flag.NArg() == 0 {

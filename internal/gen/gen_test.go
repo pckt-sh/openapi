@@ -52,9 +52,12 @@ func request(t *testing.T, param string) *pluginpb.CodeGeneratorRequest {
 	return req
 }
 
+// examplesDir is the examples_dir of the testdata, relative to this package.
+const examplesDir = "../../testdata/examples"
+
 func generate(t *testing.T, param string) map[string]string {
 	t.Helper()
-	resp, err := Run(request(t, param))
+	resp, err := Run(request(t, param+",examples_dir="+examplesDir))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -215,7 +218,7 @@ func TestSegmentsPattern(t *testing.T) {
 func TestMerge(t *testing.T) {
 	for _, name := range []string{"openapi.yaml", "openapi.json"} {
 		t.Run(name, func(t *testing.T) {
-			files := generate(t, "format=json,merge=api/"+name+",title=Example API,version=1.0.0,server=https://api.example.com")
+			files := generate(t, "format=json,merge=api/"+name+",title=Example API,version=1.0.0,server=https://api.example.com|REST API")
 			if len(files) != 1 {
 				t.Fatalf("got %d files, want only the merged one", len(files))
 			}
@@ -224,6 +227,9 @@ func TestMerge(t *testing.T) {
 				t.Fatalf("missing merged file, got %v", slices.Collect(maps.Keys(files)))
 			}
 			validate(t, name, got)
+			if *update {
+				return // merge goldens are updated by internal/merge, after this package
+			}
 
 			want, err := os.ReadFile(filepath.Join(goldenDir, name))
 			if err != nil {

@@ -32,13 +32,17 @@ type Options struct {
 	// of every file to generate, written instead of one document per file.
 	// Its format follows the extension: .json for JSON, YAML otherwise.
 	Merge string
-	// Servers are the server URLs of the merged document, `server` can be repeated.
-	Servers []string
+	// Servers of the merged document, `server` can be repeated. A description
+	// can follow the URL after a `|`: `server=https://api.pckt.sh|REST API`.
+	Servers []merge.Server
+	// ExamplesDir is the directory example files are read from, relative to
+	// the working directory of protoc or buf. Defaults to the working directory.
+	ExamplesDir string
 }
 
 // ParseOptions parses the plugin parameter string.
 func ParseOptions(param string) (Options, error) {
-	opts := Options{Format: "yaml", Version: "0.0.0"}
+	opts := Options{Format: "yaml", Version: "0.0.0", ExamplesDir: "."}
 	for kv := range strings.SplitSeq(param, ",") {
 		if kv = strings.TrimSpace(kv); kv == "" {
 			continue
@@ -60,7 +64,16 @@ func ParseOptions(param string) (Options, error) {
 			}
 			opts.Merge = value
 		case "server":
-			opts.Servers = append(opts.Servers, value)
+			srv, err := merge.ParseServer(value)
+			if err != nil {
+				return opts, err
+			}
+			opts.Servers = append(opts.Servers, srv)
+		case "examples_dir":
+			if value == "" {
+				return opts, fmt.Errorf("examples_dir requires a directory")
+			}
+			opts.ExamplesDir = value
 		default:
 			return opts, fmt.Errorf("unknown parameter %q", key)
 		}
@@ -96,6 +109,9 @@ func Run(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, e
 		format = "yaml"
 	}
 
+	examples := &exampleFiles{dir: opts.ExamplesDir}
+	defer examples.Close()
+
 	var inputs []merge.Input
 	for _, name := range req.GetFileToGenerate() {
 		fd, err := files.FindFileByPath(name)
@@ -103,7 +119,9 @@ func Run(req *pluginpb.CodeGeneratorRequest) (*pluginpb.CodeGeneratorResponse, e
 			return nil, err
 		}
 
-		doc, err := newFileGen(opts, fd).generate()
+		fg := newFileGen(opts, fd)
+		fg.exampleFiles = examples
+		doc, err := fg.generate()
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", name, err)
 		}

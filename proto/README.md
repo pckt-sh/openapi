@@ -70,10 +70,22 @@ service ShopService {
 | -------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------- |
 | `(pckt.openapi.field)`     | fields     | `example`, `type`, `format`, `pattern`, `deprecated`, `hidden`, `required`, `read_only`, `write_only`, `minimum`, `maximum`, `min_length`, `max_length`, `min_items`, `max_items`, `extensions` |
 | `(pckt.openapi.schema)`    | messages   | `title`, `type`, `hidden`, `example` (JSON), `deprecated`, `extensions`                                     |
-| `(pckt.openapi.operation)` | methods    | `summary`, `tags`, `operation_id`, `deprecated`, `hidden`, `extensions`                                     |
+| `(pckt.openapi.operation)` | methods    | `summary`, `tags`, `operation_id`, `deprecated`, `hidden`, `extensions`, `request_example`, `response_example`, `request_content_type`, `response_content_type` |
 | `(pckt.openapi.tag)`       | services   | `name`, `external_docs`                                                                                    |
 
 `extensions` keys must start with `x-`.
+
+Request and response examples are set per method, inline or from a file
+relative to the plugin `examples_dir` option, so big examples stay out of protos:
+
+```proto
+option (pckt.openapi.operation) = {
+  response_example: {file: "shop/get_item.json"}
+};
+```
+
+`google.api.HttpBody` requests and responses are documented as raw bodies,
+with the content type set by `request_content_type` / `response_content_type`.
 
 ## Go code
 

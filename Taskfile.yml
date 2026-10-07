@@ -32,6 +32,6 @@ tasks:
       - go test ./...
       - rm -rf ./testdata/generated
       - buf generate --template ./testdata/buf.gen.yaml
-      - ./bin/pckt-openapi-merge -o ./testdata/generated/openapi.yaml -title "Example API" -version 1.0.0 -server https://api.example.com ./testdata/generated
+      - ./bin/pckt-openapi-merge -o ./testdata/generated/openapi.yaml -title "Example API" -version 1.0.0 -server "https://api.example.com|REST API" ./testdata/generated
       # merging in the plugin (strategy: all) and with the CLI must agree
       - cmp ./testdata/generated/api.yaml ./testdata/generated/openapi.yaml

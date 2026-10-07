@@ -697,15 +697,19 @@ func (b0 SchemaOptions_builder) Build() *SchemaOptions {
 }
 
 type OperationOptions struct {
-	state                  protoimpl.MessageState     `protogen:"opaque.v1"`
-	xxx_hidden_Summary     string                     `protobuf:"bytes,1,opt,name=summary,proto3"`
-	xxx_hidden_Tags        []string                   `protobuf:"bytes,3,rep,name=tags,proto3"`
-	xxx_hidden_OperationId string                     `protobuf:"bytes,4,opt,name=operation_id,json=operationId,proto3"`
-	xxx_hidden_Deprecated  bool                       `protobuf:"varint,5,opt,name=deprecated,proto3"`
-	xxx_hidden_Hidden      bool                       `protobuf:"varint,6,opt,name=hidden,proto3"`
-	xxx_hidden_Extensions  map[string]*structpb.Value `protobuf:"bytes,7,rep,name=extensions,proto3" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                          protoimpl.MessageState     `protogen:"opaque.v1"`
+	xxx_hidden_Summary             string                     `protobuf:"bytes,1,opt,name=summary,proto3"`
+	xxx_hidden_Tags                []string                   `protobuf:"bytes,3,rep,name=tags,proto3"`
+	xxx_hidden_OperationId         string                     `protobuf:"bytes,4,opt,name=operation_id,json=operationId,proto3"`
+	xxx_hidden_Deprecated          bool                       `protobuf:"varint,5,opt,name=deprecated,proto3"`
+	xxx_hidden_Hidden              bool                       `protobuf:"varint,6,opt,name=hidden,proto3"`
+	xxx_hidden_Extensions          map[string]*structpb.Value `protobuf:"bytes,7,rep,name=extensions,proto3" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_RequestExample      *Example                   `protobuf:"bytes,8,opt,name=request_example,json=requestExample,proto3"`
+	xxx_hidden_ResponseExample     *Example                   `protobuf:"bytes,9,opt,name=response_example,json=responseExample,proto3"`
+	xxx_hidden_RequestContentType  string                     `protobuf:"bytes,10,opt,name=request_content_type,json=requestContentType,proto3"`
+	xxx_hidden_ResponseContentType string                     `protobuf:"bytes,11,opt,name=response_content_type,json=responseContentType,proto3"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *OperationOptions) Reset() {
@@ -775,6 +779,34 @@ func (x *OperationOptions) GetExtensions() map[string]*structpb.Value {
 	return nil
 }
 
+func (x *OperationOptions) GetRequestExample() *Example {
+	if x != nil {
+		return x.xxx_hidden_RequestExample
+	}
+	return nil
+}
+
+func (x *OperationOptions) GetResponseExample() *Example {
+	if x != nil {
+		return x.xxx_hidden_ResponseExample
+	}
+	return nil
+}
+
+func (x *OperationOptions) GetRequestContentType() string {
+	if x != nil {
+		return x.xxx_hidden_RequestContentType
+	}
+	return ""
+}
+
+func (x *OperationOptions) GetResponseContentType() string {
+	if x != nil {
+		return x.xxx_hidden_ResponseContentType
+	}
+	return ""
+}
+
 func (x *OperationOptions) SetSummary(v string) {
 	x.xxx_hidden_Summary = v
 }
@@ -799,6 +831,44 @@ func (x *OperationOptions) SetExtensions(v map[string]*structpb.Value) {
 	x.xxx_hidden_Extensions = v
 }
 
+func (x *OperationOptions) SetRequestExample(v *Example) {
+	x.xxx_hidden_RequestExample = v
+}
+
+func (x *OperationOptions) SetResponseExample(v *Example) {
+	x.xxx_hidden_ResponseExample = v
+}
+
+func (x *OperationOptions) SetRequestContentType(v string) {
+	x.xxx_hidden_RequestContentType = v
+}
+
+func (x *OperationOptions) SetResponseContentType(v string) {
+	x.xxx_hidden_ResponseContentType = v
+}
+
+func (x *OperationOptions) HasRequestExample() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_RequestExample != nil
+}
+
+func (x *OperationOptions) HasResponseExample() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_ResponseExample != nil
+}
+
+func (x *OperationOptions) ClearRequestExample() {
+	x.xxx_hidden_RequestExample = nil
+}
+
+func (x *OperationOptions) ClearResponseExample() {
+	x.xxx_hidden_ResponseExample = nil
+}
+
 type OperationOptions_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -814,6 +884,16 @@ type OperationOptions_builder struct {
 	Hidden bool
 	// OpenAPI extensions added to the operation, keys must start with `x-`
 	Extensions map[string]*structpb.Value
+	// Example of the request body, ignored for bindings without body
+	RequestExample *Example
+	// Example of the successful (200) response body
+	ResponseExample *Example
+	// Content type of the request body, defaults to `application/json`,
+	// or `application/octet-stream` for google.api.HttpBody
+	RequestContentType string
+	// Content type of the successful response, defaults to `application/json`,
+	// or `application/octet-stream` for google.api.HttpBody
+	ResponseContentType string
 }
 
 func (b0 OperationOptions_builder) Build() *OperationOptions {
@@ -826,8 +906,184 @@ func (b0 OperationOptions_builder) Build() *OperationOptions {
 	x.xxx_hidden_Deprecated = b.Deprecated
 	x.xxx_hidden_Hidden = b.Hidden
 	x.xxx_hidden_Extensions = b.Extensions
+	x.xxx_hidden_RequestExample = b.RequestExample
+	x.xxx_hidden_ResponseExample = b.ResponseExample
+	x.xxx_hidden_RequestContentType = b.RequestContentType
+	x.xxx_hidden_ResponseContentType = b.ResponseContentType
 	return m0
 }
+
+// An example value. For JSON content types (`application/json`, `*+json`) the
+// value is parsed as JSON, or as YAML for `.yaml` and `.yml` files; for other
+// content types (e.g. google.api.HttpBody serving CSV) it is used as a string.
+type Example struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Source isExample_Source       `protobuf_oneof:"source"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *Example) Reset() {
+	*x = Example{}
+	mi := &file_pckt_openapi_options_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Example) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Example) ProtoMessage() {}
+
+func (x *Example) ProtoReflect() protoreflect.Message {
+	mi := &file_pckt_openapi_options_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *Example) GetValue() string {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Source.(*example_Value); ok {
+			return x.Value
+		}
+	}
+	return ""
+}
+
+func (x *Example) GetFile() string {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Source.(*example_File); ok {
+			return x.File
+		}
+	}
+	return ""
+}
+
+func (x *Example) SetValue(v string) {
+	x.xxx_hidden_Source = &example_Value{v}
+}
+
+func (x *Example) SetFile(v string) {
+	x.xxx_hidden_Source = &example_File{v}
+}
+
+func (x *Example) HasSource() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Source != nil
+}
+
+func (x *Example) HasValue() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Source.(*example_Value)
+	return ok
+}
+
+func (x *Example) HasFile() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Source.(*example_File)
+	return ok
+}
+
+func (x *Example) ClearSource() {
+	x.xxx_hidden_Source = nil
+}
+
+func (x *Example) ClearValue() {
+	if _, ok := x.xxx_hidden_Source.(*example_Value); ok {
+		x.xxx_hidden_Source = nil
+	}
+}
+
+func (x *Example) ClearFile() {
+	if _, ok := x.xxx_hidden_Source.(*example_File); ok {
+		x.xxx_hidden_Source = nil
+	}
+}
+
+const Example_Source_not_set_case case_Example_Source = 0
+const Example_Value_case case_Example_Source = 1
+const Example_File_case case_Example_Source = 2
+
+func (x *Example) WhichSource() case_Example_Source {
+	if x == nil {
+		return Example_Source_not_set_case
+	}
+	switch x.xxx_hidden_Source.(type) {
+	case *example_Value:
+		return Example_Value_case
+	case *example_File:
+		return Example_File_case
+	default:
+		return Example_Source_not_set_case
+	}
+}
+
+type Example_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Fields of oneof xxx_hidden_Source:
+	// Inline value, convenient for small examples
+	Value *string
+	// Path of a file holding the example, relative to the `examples_dir`
+	// plugin option; it cannot point outside of that directory
+	File *string
+	// -- end of xxx_hidden_Source
+}
+
+func (b0 Example_builder) Build() *Example {
+	m0 := &Example{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Value != nil {
+		x.xxx_hidden_Source = &example_Value{*b.Value}
+	}
+	if b.File != nil {
+		x.xxx_hidden_Source = &example_File{*b.File}
+	}
+	return m0
+}
+
+type case_Example_Source protoreflect.FieldNumber
+
+func (x case_Example_Source) String() string {
+	md := file_pckt_openapi_options_proto_msgTypes[3].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isExample_Source interface {
+	isExample_Source()
+}
+
+type example_Value struct {
+	// Inline value, convenient for small examples
+	Value string `protobuf:"bytes,1,opt,name=value,proto3,oneof"`
+}
+
+type example_File struct {
+	// Path of a file holding the example, relative to the `examples_dir`
+	// plugin option; it cannot point outside of that directory
+	File string `protobuf:"bytes,2,opt,name=file,proto3,oneof"`
+}
+
+func (*example_Value) isExample_Source() {}
+
+func (*example_File) isExample_Source() {}
 
 type ExternalDocs struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
@@ -839,7 +1095,7 @@ type ExternalDocs struct {
 
 func (x *ExternalDocs) Reset() {
 	*x = ExternalDocs{}
-	mi := &file_pckt_openapi_options_proto_msgTypes[3]
+	mi := &file_pckt_openapi_options_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -851,7 +1107,7 @@ func (x *ExternalDocs) String() string {
 func (*ExternalDocs) ProtoMessage() {}
 
 func (x *ExternalDocs) ProtoReflect() protoreflect.Message {
-	mi := &file_pckt_openapi_options_proto_msgTypes[3]
+	mi := &file_pckt_openapi_options_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -910,7 +1166,7 @@ type TagOptions struct {
 
 func (x *TagOptions) Reset() {
 	*x = TagOptions{}
-	mi := &file_pckt_openapi_options_proto_msgTypes[4]
+	mi := &file_pckt_openapi_options_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -922,7 +1178,7 @@ func (x *TagOptions) String() string {
 func (*TagOptions) ProtoMessage() {}
 
 func (x *TagOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_pckt_openapi_options_proto_msgTypes[4]
+	mi := &file_pckt_openapi_options_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1039,7 +1295,7 @@ const file_pckt_openapi_options_proto_rawDesc = "" +
 	"extensions\x1aU\n" +
 	"\x0fExtensionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
-	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01J\x04\b\x02\x10\x03R\vdescription\"\xd5\x02\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01J\x04\b\x02\x10\x03R\vdescription\"\xbd\x04\n" +
 	"\x10OperationOptions\x12\x18\n" +
 	"\asummary\x18\x01 \x01(\tR\asummary\x12\x12\n" +
 	"\x04tags\x18\x03 \x03(\tR\x04tags\x12!\n" +
@@ -1050,10 +1306,19 @@ const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\x06hidden\x18\x06 \x01(\bR\x06hidden\x12N\n" +
 	"\n" +
 	"extensions\x18\a \x03(\v2..pckt.openapi.OperationOptions.ExtensionsEntryR\n" +
-	"extensions\x1aU\n" +
+	"extensions\x12>\n" +
+	"\x0frequest_example\x18\b \x01(\v2\x15.pckt.openapi.ExampleR\x0erequestExample\x12@\n" +
+	"\x10response_example\x18\t \x01(\v2\x15.pckt.openapi.ExampleR\x0fresponseExample\x120\n" +
+	"\x14request_content_type\x18\n" +
+	" \x01(\tR\x12requestContentType\x122\n" +
+	"\x15response_content_type\x18\v \x01(\tR\x13responseContentType\x1aU\n" +
 	"\x0fExtensionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
-	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01J\x04\b\x02\x10\x03R\vdescription\"B\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01J\x04\b\x02\x10\x03R\vdescription\"A\n" +
+	"\aExample\x12\x16\n" +
+	"\x05value\x18\x01 \x01(\tH\x00R\x05value\x12\x14\n" +
+	"\x04file\x18\x02 \x01(\tH\x00R\x04fileB\b\n" +
+	"\x06source\"B\n" +
 	"\fExternalDocs\x12 \n" +
 	"\vdescription\x18\x01 \x01(\tR\vdescription\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"t\n" +
@@ -1092,36 +1357,39 @@ const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\x12FIELD_FORMAT_REGEX\x10\xbc\x05B/Z-github.com/pckt-sh/openapi/proto/pckt/openapib\x06proto3"
 
 var file_pckt_openapi_options_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_pckt_openapi_options_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_pckt_openapi_options_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_pckt_openapi_options_proto_goTypes = []any{
 	(FieldType)(0),           // 0: pckt.openapi.FieldType
 	(FieldFormat)(0),         // 1: pckt.openapi.FieldFormat
 	(*FieldOptions)(nil),     // 2: pckt.openapi.FieldOptions
 	(*SchemaOptions)(nil),    // 3: pckt.openapi.SchemaOptions
 	(*OperationOptions)(nil), // 4: pckt.openapi.OperationOptions
-	(*ExternalDocs)(nil),     // 5: pckt.openapi.ExternalDocs
-	(*TagOptions)(nil),       // 6: pckt.openapi.TagOptions
-	nil,                      // 7: pckt.openapi.FieldOptions.ExtensionsEntry
-	nil,                      // 8: pckt.openapi.SchemaOptions.ExtensionsEntry
-	nil,                      // 9: pckt.openapi.OperationOptions.ExtensionsEntry
-	(*structpb.Value)(nil),   // 10: google.protobuf.Value
+	(*Example)(nil),          // 5: pckt.openapi.Example
+	(*ExternalDocs)(nil),     // 6: pckt.openapi.ExternalDocs
+	(*TagOptions)(nil),       // 7: pckt.openapi.TagOptions
+	nil,                      // 8: pckt.openapi.FieldOptions.ExtensionsEntry
+	nil,                      // 9: pckt.openapi.SchemaOptions.ExtensionsEntry
+	nil,                      // 10: pckt.openapi.OperationOptions.ExtensionsEntry
+	(*structpb.Value)(nil),   // 11: google.protobuf.Value
 }
 var file_pckt_openapi_options_proto_depIdxs = []int32{
 	0,  // 0: pckt.openapi.FieldOptions.type:type_name -> pckt.openapi.FieldType
 	1,  // 1: pckt.openapi.FieldOptions.format:type_name -> pckt.openapi.FieldFormat
-	7,  // 2: pckt.openapi.FieldOptions.extensions:type_name -> pckt.openapi.FieldOptions.ExtensionsEntry
+	8,  // 2: pckt.openapi.FieldOptions.extensions:type_name -> pckt.openapi.FieldOptions.ExtensionsEntry
 	0,  // 3: pckt.openapi.SchemaOptions.type:type_name -> pckt.openapi.FieldType
-	8,  // 4: pckt.openapi.SchemaOptions.extensions:type_name -> pckt.openapi.SchemaOptions.ExtensionsEntry
-	9,  // 5: pckt.openapi.OperationOptions.extensions:type_name -> pckt.openapi.OperationOptions.ExtensionsEntry
-	5,  // 6: pckt.openapi.TagOptions.external_docs:type_name -> pckt.openapi.ExternalDocs
-	10, // 7: pckt.openapi.FieldOptions.ExtensionsEntry.value:type_name -> google.protobuf.Value
-	10, // 8: pckt.openapi.SchemaOptions.ExtensionsEntry.value:type_name -> google.protobuf.Value
-	10, // 9: pckt.openapi.OperationOptions.ExtensionsEntry.value:type_name -> google.protobuf.Value
-	10, // [10:10] is the sub-list for method output_type
-	10, // [10:10] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	9,  // 4: pckt.openapi.SchemaOptions.extensions:type_name -> pckt.openapi.SchemaOptions.ExtensionsEntry
+	10, // 5: pckt.openapi.OperationOptions.extensions:type_name -> pckt.openapi.OperationOptions.ExtensionsEntry
+	5,  // 6: pckt.openapi.OperationOptions.request_example:type_name -> pckt.openapi.Example
+	5,  // 7: pckt.openapi.OperationOptions.response_example:type_name -> pckt.openapi.Example
+	6,  // 8: pckt.openapi.TagOptions.external_docs:type_name -> pckt.openapi.ExternalDocs
+	11, // 9: pckt.openapi.FieldOptions.ExtensionsEntry.value:type_name -> google.protobuf.Value
+	11, // 10: pckt.openapi.SchemaOptions.ExtensionsEntry.value:type_name -> google.protobuf.Value
+	11, // 11: pckt.openapi.OperationOptions.ExtensionsEntry.value:type_name -> google.protobuf.Value
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_pckt_openapi_options_proto_init() }
@@ -1130,13 +1398,17 @@ func file_pckt_openapi_options_proto_init() {
 		return
 	}
 	file_pckt_openapi_options_proto_msgTypes[0].OneofWrappers = []any{}
+	file_pckt_openapi_options_proto_msgTypes[3].OneofWrappers = []any{
+		(*example_Value)(nil),
+		(*example_File)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pckt_openapi_options_proto_rawDesc), len(file_pckt_openapi_options_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

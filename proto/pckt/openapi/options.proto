@@ -154,6 +154,34 @@ message OperationOptions {
 
   // OpenAPI extensions added to the operation, keys must start with `x-`
   map<string, google.protobuf.Value> extensions = 7;
+
+  // Example of the request body, ignored for bindings without body
+  Example request_example = 8;
+
+  // Example of the successful (200) response body
+  Example response_example = 9;
+
+  // Content type of the request body, defaults to `application/json`,
+  // or `application/octet-stream` for google.api.HttpBody
+  string request_content_type = 10;
+
+  // Content type of the successful response, defaults to `application/json`,
+  // or `application/octet-stream` for google.api.HttpBody
+  string response_content_type = 11;
+}
+
+// An example value. For JSON content types (`application/json`, `*+json`) the
+// value is parsed as JSON, or as YAML for `.yaml` and `.yml` files; for other
+// content types (e.g. google.api.HttpBody serving CSV) it is used as a string.
+message Example {
+  oneof source {
+    // Inline value, convenient for small examples
+    string value = 1;
+
+    // Path of a file holding the example, relative to the `examples_dir`
+    // plugin option; it cannot point outside of that directory
+    string file = 2;
+  }
 }
 
 message ExternalDocs {

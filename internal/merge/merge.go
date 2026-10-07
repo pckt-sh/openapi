@@ -35,9 +35,25 @@ type Options struct {
 	Version     string
 	Description string
 	// Servers are appended to the servers of the base document.
-	Servers []string
+	Servers []Server
 	// Warnings receives non-fatal conflicts, discarded when nil.
 	Warnings io.Writer
+}
+
+// Server is a server of the merged document.
+type Server struct {
+	URL         string
+	Description string
+}
+
+// ParseServer parses a server given as `URL` or `URL|description`.
+func ParseServer(s string) (Server, error) {
+	url, desc, _ := strings.Cut(s, "|")
+	srv := Server{URL: strings.TrimSpace(url), Description: strings.TrimSpace(desc)}
+	if srv.URL == "" {
+		return srv, fmt.Errorf("invalid server %q: missing URL", s)
+	}
+	return srv, nil
 }
 
 // topLevelOrder is the order of well-known top-level keys in the output.
@@ -303,9 +319,12 @@ func (m *merger) applyOptions() {
 
 	if len(m.opts.Servers) > 0 {
 		servers := &yaml.Node{Kind: yaml.SequenceNode}
-		for _, url := range m.opts.Servers {
+		for _, s := range m.opts.Servers {
 			srv := &yaml.Node{Kind: yaml.MappingNode}
-			set(srv, "url", str(url))
+			set(srv, "url", str(s.URL))
+			if s.Description != "" {
+				set(srv, "description", str(s.Description))
+			}
 			servers.Content = append(servers.Content, srv)
 		}
 		m.mergeServers(servers)

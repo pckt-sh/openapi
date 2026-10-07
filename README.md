@@ -46,7 +46,9 @@ plugins:
       - merge=api.yaml # .json for JSON
       - title=Shop API
       - version=1.0.0
-      - server=https://api.example.com
+      - server=https://api.pckt.sh|REST API # description after `|` is optional
+      - server=https://grpc.pckt.sh|gRPC-Web
+      - examples_dir=openapi/examples # see "Request and response examples"
 ```
 
 > [!IMPORTANT]
@@ -112,7 +114,8 @@ Options are `key=value` pairs, separated by commas with protoc or given as `opt`
 | `merge`   |                             | write a single document at this path instead of one per file, `.json` for JSON, YAML otherwise |
 | `title`   | proto path, `API` if merged | `info.title`                                                                |
 | `version` | `0.0.0`                     | `info.version`                                                              |
-| `server`  |                             | server URL of the merged document, can be repeated                          |
+| `server`  |                             | server of the merged document, `URL` or `URL\|description`, can be repeated  |
+| `examples_dir` | working directory      | directory of example files, relative to where `buf`/`protoc` runs          |
 
 Files without HTTP operations, messages nor enums produce no output.
 `merge` applies the same [rules](#merge-rules) as `pckt-openapi-merge`.
@@ -126,7 +129,7 @@ pckt-openapi-merge [flags] <files or dirs...>
   -title        info.title
   -version      info.version
   -description  info.description
-  -server       server URL, can be repeated
+  -server       server URL[|description], can be repeated
 ```
 
 Directories are walked for `*.openapi.yaml`, `*.openapi.yml` and `*.openapi.json`,
@@ -185,7 +188,7 @@ service HelloService {
 | -------------------------- | --------------------------------------------------------------------------------------------------------- |
 | `(pckt.openapi.field)`     | `example`, `type`, `format`, `pattern`, `deprecated`, `hidden`, `required`, `read_only`, `write_only`, `minimum`, `maximum`, `min_length`, `max_length`, `min_items`, `max_items`, `extensions` |
 | `(pckt.openapi.schema)`    | `title`, `type`, `hidden`, `example` (JSON), `deprecated`, `extensions`                                    |
-| `(pckt.openapi.operation)` | `summary`, `tags`, `operation_id`, `deprecated`, `hidden`, `extensions`                                    |
+| `(pckt.openapi.operation)` | `summary`, `tags`, `operation_id`, `deprecated`, `hidden`, `extensions`, `request_example`, `response_example`, `request_content_type`, `response_content_type` |
 | `(pckt.openapi.tag)`       | `name`, `external_docs`                                                                                   |
 
 - `example` is a string: for string schemas it is used literally (`"John"` →
@@ -195,6 +198,45 @@ service HelloService {
 - `hidden` on a message also hides every field of that message type.
 - The standard `deprecated` option and `google.api.field_behavior`
   (`REQUIRED` → `required`, `OUTPUT_ONLY` → `readOnly`, `INPUT_ONLY` → `writeOnly`) are honored too.
+
+### Request and response examples
+
+Examples of a method's request body and successful response are set on the
+operation, not on the schema, so methods sharing a message (or
+`google.api.HttpBody`) each get their own example. Big examples live in files:
+
+```proto
+rpc GetItem(GetItemRequest) returns (Item) {
+  option (google.api.http) = {get: "/v1/items/{id}"};
+  option (pckt.openapi.operation) = {
+    response_example: {file: "shop/get_item.json"}
+  };
+}
+
+rpc ExportItems(ExportItemsRequest) returns (google.api.HttpBody) {
+  option (google.api.http) = {get: "/v1/items:export"};
+  option (pckt.openapi.operation) = {
+    response_content_type: "text/csv"
+    response_example: {file: "shop/export.csv"}
+  };
+}
+
+rpc CreateItem(CreateItemRequest) returns (Item) {
+  option (google.api.http) = {post: "/v1/items" body: "item"};
+  option (pckt.openapi.operation) = {
+    request_example: {value: "{\"name\": \"Mug\", \"price\": 990}"}
+  };
+}
+```
+
+- `file` is relative to the `examples_dir` plugin option, which is itself
+  relative to the directory `buf generate` or `protoc` runs in. Files cannot
+  point outside of `examples_dir`; a missing or invalid file fails generation.
+- For JSON content types (`application/json`, `*+json`), the example is parsed:
+  JSON, or YAML for `.yaml`/`.yml` files. Key order is kept. For other content
+  types it is used as text.
+- `request_example` applies to the bindings with a body; setting it on a method
+  without any is an error.
 
 ## Mapping rules
 
@@ -239,6 +281,12 @@ additional ones get an `_N` suffix on their operation ID (`Service_Method_1`).
   (up to 5 levels, no cycles); maps and repeated messages are not representable and skipped.
 - **Responses**: `200` with the response message (or `response_body` field),
   `default` with `google.rpc.Status`.
+- **Content types**: `application/json`, overridable with `request_content_type`
+  and `response_content_type`.
+- **`google.api.HttpBody`**: as a request (`body: "*"` on an HttpBody input, or a
+  `body` field of that type) or response (output or `response_body` field), it is
+  a raw body as served by grpc-gateway: `string`/`binary` schema, content type
+  `application/octet-stream` unless set with the content type options.
 
 ## Merge rules
 
@@ -265,9 +313,11 @@ cmd/pckt-openapi-merge       merge CLI: flags, file collection, output
 internal/gen                 the generator
   gen.go                     options parsing, Run(), per-file loop, merge option, encoding
   file.go                    fileGen: services, google.api.http → operations and parameters
+  examples.go                request/response examples, content types, google.api.HttpBody
   schema.go                  messages, fields, enums, well-known types → schemas; annotations
   comments.go                leading comment cleaning, summary/description split
 internal/openapi             the OpenAPI 3.1 document model written by the generator
+  node.go                    ordered JSON values (yaml.Node) and their JSON encoding
 internal/merge               the merger, shared by the CLI and the merge option
   merge.go                   merge of yaml.Node documents, conflict detection, YAML encoding
   json.go                    yaml.Node → ordered JSON encoding
@@ -301,6 +351,12 @@ a `$ref`. It first registers a placeholder, so recursive messages terminate,
 and recursively adds every message reachable from fields, including messages of
 imported files: each document is self-contained, the merger deduplicates them.
 Well-known types are inlined instead of referenced.
+
+Example files are read through an `os.Root` opened on `examples_dir` on first
+use: the directory only has to exist when examples are used, and paths with
+`..` or absolute paths cannot escape it. Examples, like annotation `example`
+values, are parsed into ordered `yaml.Node` trees (`openapi.Node`) instead of
+Go maps, so keys keep the order they were written in, in YAML and JSON output.
 
 Annotation errors (e.g. an extension key without `x-`) are collected in
 `fileGen.errs` while building schemas, and returned at the end of the file, so

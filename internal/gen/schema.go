@@ -1,7 +1,6 @@
 package gen
 
 import (
-	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -298,40 +297,15 @@ func applyType(s *openapi.Schema, t pckt.FieldType) {
 }
 
 // parseExample converts an annotation example to a typed value: JSON is used
-// as is, except for string schemas where unquoted values are taken literally.
+// as is (keeping object key order), except for string schemas where unquoted
+// values are taken literally.
 func parseExample(example, kind string) any {
 	if kind == "string" && !strings.HasPrefix(strings.TrimSpace(example), `"`) {
 		return example
 	}
-	var v any
-	dec := json.NewDecoder(strings.NewReader(example))
-	dec.UseNumber()
-	if err := dec.Decode(&v); err != nil || dec.More() {
+	v, err := openapi.ParseJSON(example)
+	if err != nil {
 		return example
-	}
-	return normalizeNumbers(v)
-}
-
-// normalizeNumbers converts json.Number values to int64 or float64, so that
-// they are encoded as numbers in YAML too.
-func normalizeNumbers(v any) any {
-	switch v := v.(type) {
-	case json.Number:
-		if i, err := v.Int64(); err == nil {
-			return i
-		}
-		if f, err := v.Float64(); err == nil {
-			return f
-		}
-		return v.String()
-	case map[string]any:
-		for k, e := range v {
-			v[k] = normalizeNumbers(e)
-		}
-	case []any:
-		for i, e := range v {
-			v[i] = normalizeNumbers(e)
-		}
 	}
 	return v
 }

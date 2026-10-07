@@ -15,8 +15,6 @@ import (
 	pckt "github.com/pckt-sh/openapi/proto/pckt/openapi"
 )
 
-const jsonContentType = "application/json"
-
 // maxQueryDepth bounds the flattening of nested messages into query parameters.
 const maxQueryDepth = 5
 
@@ -30,6 +28,8 @@ type fileGen struct {
 	schemas map[string]*openapi.Schema
 	// errs collects annotation errors found while building schemas.
 	errs []error
+	// exampleFiles reads the example files referenced by annotations.
+	exampleFiles *exampleFiles
 }
 
 func newFileGen(opts Options, file protoreflect.FileDescriptor) *fileGen {
@@ -150,8 +150,15 @@ func (g *fileGen) addMethod(svc protoreflect.ServiceDescriptor, m protoreflect.M
 		baseID = oo.GetOperationId()
 	}
 
+	examples, err := g.loadExamples(oo)
+	if err != nil {
+		return false, fmt.Errorf("%s: %w", m.FullName(), err)
+	}
+
+	hasBody := false
 	for i, r := range rules {
-		op, err := g.operation(m, r)
+		hasBody = hasBody || r.GetBody() != ""
+		op, err := g.operation(m, r, oo, examples)
 		if err != nil {
 			return false, fmt.Errorf("%s: %w", m.FullName(), err)
 		}
@@ -199,6 +206,9 @@ func (g *fileGen) addMethod(svc protoreflect.ServiceDescriptor, m protoreflect.M
 		*slot = op
 	}
 
+	if examples.request != nil && !hasBody {
+		return false, fmt.Errorf("%s: request_example is set but no HTTP binding has a body", m.FullName())
+	}
 	return true, nil
 }
 
@@ -222,9 +232,10 @@ func httpPattern(r *annotations.HttpRule) (string, string) {
 }
 
 // operation builds the parameters, request body and responses of a binding.
-func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.HttpRule) (*openapi.Operation, error) {
+func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.HttpRule, oo *pckt.OperationOptions, examples methodExamples) (*openapi.Operation, error) {
 	input, output := m.Input(), m.Output()
 	op := &openapi.Operation{}
+	var err error
 
 	_, tmpl := httpPattern(r)
 
@@ -256,33 +267,45 @@ func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.Http
 
 	// Request body.
 	body := r.GetBody()
-	switch body {
-	case "":
-	case "*":
-		var s *openapi.Schema
-		if hasTopLevel(inPath) {
-			s = g.messageSchema(input, func(f protoreflect.FieldDescriptor) bool {
-				return inPath[string(f.Name())]
-			})
+	if body != "" {
+		var (
+			s       *openapi.Schema
+			bodyMsg protoreflect.MessageDescriptor
+			desc    string
+		)
+		if body == "*" {
+			bodyMsg = input
+			if hasTopLevel(inPath) {
+				s = g.messageSchema(input, func(f protoreflect.FieldDescriptor) bool {
+					return inPath[string(f.Name())]
+				})
+			} else {
+				s = g.messageRef(input)
+			}
 		} else {
-			s = g.messageRef(input)
+			f := fieldByPath(input, body)
+			if f == nil {
+				return nil, fmt.Errorf("body %q is not a field of %s", body, input.FullName())
+			}
+			bodyMsg = f.Message()
+			s = g.fieldSchema(f)
+			desc, s.Description = s.Description, ""
+		}
+
+		raw := isHTTPBody(bodyMsg)
+		if raw {
+			s = rawSchema()
+		}
+		contentType := mediaType(oo.GetRequestContentType(), raw)
+		media := &openapi.MediaType{Schema: s}
+		if media.Example, err = examples.request.decode(contentType); err != nil {
+			return nil, fmt.Errorf("request_example: %w", err)
 		}
 		op.RequestBody = &openapi.RequestBody{
-			Required: true,
-			Content:  map[string]*openapi.MediaType{jsonContentType: {Schema: s}},
-		}
-	default:
-		f := fieldByPath(input, body)
-		if f == nil {
-			return nil, fmt.Errorf("body %q is not a field of %s", body, input.FullName())
-		}
-		s := g.fieldSchema(f)
-		op.RequestBody = &openapi.RequestBody{
-			Description: s.Description,
+			Description: desc,
 			Required:    true,
-			Content:     map[string]*openapi.MediaType{jsonContentType: {Schema: s}},
+			Content:     map[string]*openapi.MediaType{contentType: media},
 		}
-		s.Description = ""
 	}
 
 	// Query parameters: every field neither in the path nor in the body.
@@ -298,22 +321,35 @@ func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.Http
 	}
 
 	// Responses.
-	var resp *openapi.Schema
+	var (
+		resp    *openapi.Schema
+		respMsg protoreflect.MessageDescriptor
+	)
 	if rb := r.GetResponseBody(); rb != "" {
 		f := fieldByPath(output, rb)
 		if f == nil {
 			return nil, fmt.Errorf("response_body %q is not a field of %s", rb, output.FullName())
 		}
-		resp = g.fieldSchema(f)
+		resp, respMsg = g.fieldSchema(f), f.Message()
 	} else {
-		resp = g.messageRef(output)
+		resp, respMsg = g.messageRef(output), output
+	}
+
+	raw := isHTTPBody(respMsg)
+	if raw {
+		resp = rawSchema()
+	}
+	contentType := mediaType(oo.GetResponseContentType(), raw)
+	media := &openapi.MediaType{Schema: resp}
+	if media.Example, err = examples.response.decode(contentType); err != nil {
+		return nil, fmt.Errorf("response_example: %w", err)
 	}
 
 	g.schemas[statusSchemaName] = statusSchema()
 	op.Responses = map[string]*openapi.Response{
 		"200": {
 			Description: "A successful response.",
-			Content:     map[string]*openapi.MediaType{jsonContentType: {Schema: resp}},
+			Content:     map[string]*openapi.MediaType{contentType: media},
 		},
 		"default": {
 			Description: "An unexpected error response.",

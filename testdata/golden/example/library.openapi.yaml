@@ -59,6 +59,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/example.Book'
+              example:
+                name: shelves/1/books/2
+                title: Dune
+                authorEmail: frank@example.com
+                pageCount: "412"
+                tags:
+                  - sci-fi
+                  - classic
+                visibility: VISIBILITY_PUBLIC
+                createTime: "1965-08-01T00:00:00Z"
+                rating: 4.8
         default:
           description: An unexpected error response.
           content:
@@ -94,6 +105,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/google.rpc.Status'
       deprecated: true
+  /v1/{name}/cover:
+    put:
+      tags:
+        - LibraryService
+      summary: Upload the cover image of a book.
+      operationId: LibraryService_UploadCover
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^shelves/[^/]+/books/[^/]+$
+      requestBody:
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.rpc.Status'
   /v1/{name}:archive:
     post:
       tags:
@@ -158,6 +202,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/google.rpc.Status'
       deprecated: true
+  /v1/{name}:export:
+    get:
+      tags:
+        - LibraryService
+      summary: Export a book as CSV.
+      operationId: LibraryService_ExportBook
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^shelves/[^/]+/books/[^/]+$
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+              example: |
+                name,title,page_count
+                shelves/1/books/2,Dune,412
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.rpc.Status'
   /v1/{parent}/books:
     get:
       tags:
@@ -232,6 +306,12 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/example.Book'
+            example:
+              title: Dune Messiah
+              authorEmail: frank@example.com
+              tags:
+                - sci-fi
+              visibility: VISIBILITY_PRIVATE
         required: true
       responses:
         "200":
@@ -240,6 +320,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/example.Book'
+              example:
+                name: shelves/1/books/3
+                title: Dune Messiah
         default:
           description: An unexpected error response.
           content:
@@ -353,6 +436,11 @@ components:
           type: string
         force:
           type: boolean
+    example.ExportBookRequest:
+      type: object
+      properties:
+        name:
+          type: string
     example.GetBookRequest:
       type: object
       properties:
@@ -403,6 +491,13 @@ components:
           $ref: '#/components/schemas/example.Book'
         updateMask:
           type: string
+    example.UploadCoverRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        cover:
+          $ref: '#/components/schemas/google.api.HttpBody'
     example.Visibility:
       description: |-
         Visibility of a resource.
@@ -413,6 +508,72 @@ components:
         - VISIBILITY_UNSPECIFIED
         - VISIBILITY_PUBLIC
         - VISIBILITY_PRIVATE
+    google.api.HttpBody:
+      description: |-
+        Message that represents an arbitrary HTTP body. It should only be used for
+        payload formats that can't be represented as JSON, such as raw binary or
+        an HTML page.
+
+
+        This message can be used both in streaming and non-streaming API methods in
+        the request as well as the response.
+
+        It can be used as a top-level request field, which is convenient if one
+        wants to extract parameters from either the URL or HTTP template into the
+        request fields and also want access to the raw HTTP body.
+
+        Example:
+
+            message GetResourceRequest {
+              // A unique request id.
+              string request_id = 1;
+
+              // The raw HTTP body is bound to this field.
+              google.api.HttpBody http_body = 2;
+
+            }
+
+            service ResourceService {
+              rpc GetResource(GetResourceRequest)
+                returns (google.api.HttpBody);
+              rpc UpdateResource(google.api.HttpBody)
+                returns (google.protobuf.Empty);
+
+            }
+
+        Example with streaming methods:
+
+            service CaldavService {
+              rpc GetCalendar(stream google.api.HttpBody)
+                returns (stream google.api.HttpBody);
+              rpc UpdateCalendar(stream google.api.HttpBody)
+                returns (stream google.api.HttpBody);
+
+            }
+
+        Use of this type only changes how the request and response bodies are
+        handled, all other features will continue to work unchanged.
+      type: object
+      properties:
+        contentType:
+          description: The HTTP Content-Type header value specifying the content type of the body.
+          type: string
+        data:
+          description: The HTTP request/response body as raw binary.
+          type: string
+          format: byte
+        extensions:
+          description: |-
+            Application specific response metadata. Must be set in the first response
+            for streaming APIs.
+          type: array
+          items:
+            type: object
+            properties:
+              '@type':
+                description: Type URL of the serialized message.
+                type: string
+            additionalProperties: {}
     google.rpc.Status:
       description: The `Status` type defines a logical error model, see https://google.aip.dev/193.
       type: object

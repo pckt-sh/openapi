@@ -1,0 +1,10 @@
+{
+  "name": "shelves/1/books/2",
+  "title": "Dune",
+  "authorEmail": "frank@example.com",
+  "pageCount": "412",
+  "tags": ["sci-fi", "classic"],
+  "visibility": "VISIBILITY_PUBLIC",
+  "createTime": "1965-08-01T00:00:00Z",
+  "rating": 4.8
+}
