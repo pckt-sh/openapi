@@ -1,0 +1,10 @@
+{
+  "shelf": "shelves/1",
+  "updatedAt": "2026-10-09T08:30:00Z",
+  "totals": {"books": 2, "pages": 776},
+  "topBooks": [
+    {"name": "shelves/1/books/2", "rating": 4.8, "loans": 12, "lastLoan": "2026-10-01"},
+    {"name": "shelves/1/books/3", "rating": 4, "loans": 3, "lastLoan": null}
+  ],
+  "tags": []
+}

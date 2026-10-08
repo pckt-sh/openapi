@@ -37,6 +37,8 @@ func methodRequest(rule *annotations.HttpRule, oo *pckt.OperationOptions, param 
 				Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 			}}},
 			{Name: proto.String("Resp")},
+			// MResponse collides with the inferred response schema of operation `t.M`.
+			{Name: proto.String("MResponse")},
 		},
 		Service: []*descriptorpb.ServiceDescriptorProto{{
 			Name: proto.String("S"),

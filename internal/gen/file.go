@@ -30,13 +30,16 @@ type fileGen struct {
 	errs []error
 	// exampleFiles reads the example files referenced by annotations.
 	exampleFiles *exampleFiles
+	// inferred records component schemas inferred from examples.
+	inferred map[string]bool
 }
 
 func newFileGen(opts Options, file protoreflect.FileDescriptor) *fileGen {
 	return &fileGen{
-		opts:    opts,
-		file:    file,
-		schemas: map[string]*openapi.Schema{},
+		opts:     opts,
+		file:     file,
+		schemas:  map[string]*openapi.Schema{},
+		inferred: map[string]bool{},
 	}
 }
 
@@ -154,6 +157,7 @@ func (g *fileGen) addMethod(svc protoreflect.ServiceDescriptor, m protoreflect.M
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", m.FullName(), err)
 	}
+	examples.requestName, examples.responseName = baseID+"Request", baseID+"Response"
 
 	hasBody := false
 	for i, r := range rules {
@@ -299,6 +303,12 @@ func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.Http
 		if media.Example, err = examples.request.decode(contentType); err != nil {
 			return nil, fmt.Errorf("request_example: %w", err)
 		}
+		if examples.request != nil && examples.request.infer {
+			if media.Schema, err = g.inferredSchema(examples.requestName, media.Example, contentType); err != nil {
+				return nil, fmt.Errorf("request_example: %w", err)
+			}
+			media.Example = nil
+		}
 		op.RequestBody = &openapi.RequestBody{
 			Description: desc,
 			Required:    true,
@@ -341,6 +351,12 @@ func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.Http
 	media := &openapi.MediaType{Schema: resp}
 	if media.Example, err = examples.response.decode(contentType); err != nil {
 		return nil, fmt.Errorf("response_example: %w", err)
+	}
+	if examples.response != nil && examples.response.infer {
+		if media.Schema, err = g.inferredSchema(examples.responseName, media.Example, contentType); err != nil {
+			return nil, fmt.Errorf("response_example: %w", err)
+		}
+		media.Example = nil
 	}
 
 	g.schemas[statusSchemaName] = statusSchema()

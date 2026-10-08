@@ -338,8 +338,84 @@ paths:
                 $ref: '#/components/schemas/google.rpc.Status'
       x-internal: false
       x-rate-limit: 10
+  /v1/{parent}/stats:
+    get:
+      tags:
+        - LibraryService
+      description: Statistics of a shelf, computed by an untyped backend.
+      operationId: LibraryService_GetShelfStats
+      parameters:
+        - name: parent
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^shelves/[^/]+$
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LibraryService_GetShelfStatsResponse'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.rpc.Status'
 components:
   schemas:
+    LibraryService_GetShelfStatsResponse:
+      type: object
+      properties:
+        shelf:
+          type: string
+          examples:
+            - shelves/1
+        updatedAt:
+          type: string
+          format: date-time
+          examples:
+            - "2026-10-09T08:30:00Z"
+        totals:
+          type: object
+          properties:
+            books:
+              type: integer
+              examples:
+                - 2
+            pages:
+              type: integer
+              examples:
+                - 776
+        topBooks:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                examples:
+                  - shelves/1/books/2
+              rating:
+                type: number
+                examples:
+                  - 4.8
+              loans:
+                type: integer
+                examples:
+                  - 12
+              lastLoan:
+                type:
+                  - string
+                  - "null"
+                format: date
+                examples:
+                  - "2026-10-01"
+        tags:
+          type: array
+          items: {}
     example.ArchiveBookRequest:
       type: object
       properties:
@@ -452,6 +528,11 @@ components:
       type: object
       properties:
         name:
+          type: string
+    example.GetShelfStatsRequest:
+      type: object
+      properties:
+        parent:
           type: string
     example.ListBooksRequest:
       type: object

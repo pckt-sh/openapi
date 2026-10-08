@@ -8,6 +8,7 @@ import "google/api/field_behavior.proto";
 import "google/api/httpbody.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "pckt/openapi/annotations.proto";
@@ -134,6 +135,10 @@ message UploadCoverRequest {
   google.api.HttpBody cover = 2;
 }
 
+message GetShelfStatsRequest {
+  string parent = 1;
+}
+
 message ArchiveBookRequest {
   string name = 1;
   string reason = 2;
@@ -217,6 +222,17 @@ service LibraryService {
       body: "cover"
     };
     option (pckt.openapi.operation) = {request_content_type: "image/png"};
+  }
+
+  // Statistics of a shelf, computed by an untyped backend.
+  rpc GetShelfStats(GetShelfStatsRequest) returns (google.protobuf.Struct) {
+    option (google.api.http) = {get: "/v1/{parent=shelves/*}/stats"};
+    option (pckt.openapi.operation) = {
+      response_example: {
+        file: "library/stats.json"
+        infer_schema: true
+      }
+    };
   }
 
   rpc Secret(GetBookRequest) returns (Book) {

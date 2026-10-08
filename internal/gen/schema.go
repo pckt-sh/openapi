@@ -115,6 +115,10 @@ func (g *fileGen) messageRef(m protoreflect.MessageDescriptor) *openapi.Schema {
 	}
 
 	name := string(m.FullName())
+	if g.inferred[name] {
+		g.errs = append(g.errs, fmt.Errorf("%s: schema name is already used by a schema inferred from an example", name))
+		return ref(name)
+	}
 	if _, ok := g.schemas[name]; !ok {
 		// Register a placeholder first so recursive messages terminate.
 		placeholder := &openapi.Schema{}

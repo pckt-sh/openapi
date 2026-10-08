@@ -239,6 +239,49 @@ rpc CreateItem(CreateItemRequest) returns (Item) {
 - `request_example` applies to the bindings with a body; setting it on a method
   without any is an error.
 
+#### Schemas inferred from examples
+
+For untyped bodies (`google.protobuf.Struct`, `google.api.HttpBody`, a message
+wrapping raw JSON...), `infer_schema: true` replaces the body schema with one
+inferred from the example:
+
+```proto
+rpc GetSubtotal(StockXSubtotalPayload) returns (google.protobuf.Struct) {
+  option (google.api.http) = {get: "/v1/stockx/subtotal"};
+  option (pckt.openapi.operation) = {
+    operation_id: "getSubtotal"
+    response_example: {
+      file: "StockXService_GetSubtotal.json"
+      infer_schema: true
+    }
+  };
+}
+```
+
+The schema is added to the components as `<operationId>Response` (or
+`Request`) and referenced by the operation, so SDK generators get a named
+type (`getSubtotalResponse`). **The example itself is not written** to the
+document, so large example files do not weigh on it: each property of the
+schema carries one sample value (`examples`) taken from the file instead.
+Inference rules:
+
+- objects keep their properties in example order; **no property is required**,
+  as a sample cannot prove a field is always present;
+- every item of an array contributes to the item schema: a field present in
+  some items only, or `null` in some, is still described (`[string, "null"]`);
+- numbers are `integer` when every value is whole, `number` otherwise; values of
+  different types give a type list;
+- empty arrays get `items: {}`;
+- strings get a `format` (`uuid`, `date-time`, `date`, `email`, `uri`) when
+  every value of the field matches it;
+- scalar properties get the first non-null value seen as example; objects and
+  arrays get none (their properties and items carry them), and strings longer
+  than 256 characters are not kept.
+
+It requires a JSON content type. The more representative the example (e.g. a
+list with varied items), the more complete the schema; review the result, it
+is a starting point rather than a contract.
+
 ## Mapping rules
 
 ### Types (canonical protojson)
@@ -315,6 +358,7 @@ internal/gen                 the generator
   gen.go                     options parsing, Run(), per-file loop, merge option, encoding
   file.go                    fileGen: services, google.api.http → operations and parameters
   examples.go                request/response examples, content types, google.api.HttpBody
+  infer.go                   schema inference from example values
   schema.go                  messages, fields, enums, well-known types → schemas; annotations
   comments.go                leading comment cleaning
 internal/openapi             the OpenAPI 3.1 document model written by the generator

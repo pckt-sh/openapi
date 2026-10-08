@@ -917,10 +917,11 @@ func (b0 OperationOptions_builder) Build() *OperationOptions {
 // value is parsed as JSON, or as YAML for `.yaml` and `.yml` files; for other
 // content types (e.g. google.api.HttpBody serving CSV) it is used as a string.
 type Example struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Source isExample_Source       `protobuf_oneof:"source"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Source      isExample_Source       `protobuf_oneof:"source"`
+	xxx_hidden_InferSchema bool                   `protobuf:"varint,3,opt,name=infer_schema,json=inferSchema,proto3"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *Example) Reset() {
@@ -966,12 +967,23 @@ func (x *Example) GetFile() string {
 	return ""
 }
 
+func (x *Example) GetInferSchema() bool {
+	if x != nil {
+		return x.xxx_hidden_InferSchema
+	}
+	return false
+}
+
 func (x *Example) SetValue(v string) {
 	x.xxx_hidden_Source = &example_Value{v}
 }
 
 func (x *Example) SetFile(v string) {
 	x.xxx_hidden_Source = &example_File{v}
+}
+
+func (x *Example) SetInferSchema(v bool) {
+	x.xxx_hidden_InferSchema = v
 }
 
 func (x *Example) HasSource() bool {
@@ -1041,6 +1053,12 @@ type Example_builder struct {
 	// plugin option; it cannot point outside of that directory
 	File *string
 	// -- end of xxx_hidden_Source
+	// Replace the schema of the body with one inferred from the example, for
+	// untyped bodies (google.protobuf.Struct, google.api.HttpBody, bytes...).
+	// The schema is added to the components as `<operation_id>Response` (or
+	// `Request`). The example itself is not written, each property of the
+	// schema gets a sample value instead. Requires a JSON content type.
+	InferSchema bool
 }
 
 func (b0 Example_builder) Build() *Example {
@@ -1053,6 +1071,7 @@ func (b0 Example_builder) Build() *Example {
 	if b.File != nil {
 		x.xxx_hidden_Source = &example_File{*b.File}
 	}
+	x.xxx_hidden_InferSchema = b.InferSchema
 	return m0
 }
 
@@ -1314,10 +1333,11 @@ const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\x15response_content_type\x18\v \x01(\tR\x13responseContentType\x1aU\n" +
 	"\x0fExtensionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
-	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01J\x04\b\x02\x10\x03R\vdescription\"A\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01J\x04\b\x02\x10\x03R\vdescription\"d\n" +
 	"\aExample\x12\x16\n" +
 	"\x05value\x18\x01 \x01(\tH\x00R\x05value\x12\x14\n" +
-	"\x04file\x18\x02 \x01(\tH\x00R\x04fileB\b\n" +
+	"\x04file\x18\x02 \x01(\tH\x00R\x04file\x12!\n" +
+	"\finfer_schema\x18\x03 \x01(\bR\vinferSchemaB\b\n" +
 	"\x06source\"B\n" +
 	"\fExternalDocs\x12 \n" +
 	"\vdescription\x18\x01 \x01(\tR\vdescription\x12\x10\n" +

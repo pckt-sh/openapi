@@ -182,6 +182,13 @@ message Example {
     // plugin option; it cannot point outside of that directory
     string file = 2;
   }
+
+  // Replace the schema of the body with one inferred from the example, for
+  // untyped bodies (google.protobuf.Struct, google.api.HttpBody, bytes...).
+  // The schema is added to the components as `<operation_id>Response` (or
+  // `Request`). The example itself is not written, each property of the
+  // schema gets a sample value instead. Requires a JSON content type.
+  bool infer_schema = 3;
 }
 
 message ExternalDocs {

@@ -81,10 +81,14 @@ func (e *exampleFiles) Close() error {
 type example struct {
 	data []byte
 	yaml bool
+	// infer replaces the body schema with one inferred from the example.
+	infer bool
 }
 
 type methodExamples struct {
 	request, response *example
+	// requestName and responseName are the component names of inferred schemas.
+	requestName, responseName string
 }
 
 func (g *fileGen) loadExamples(oo *pckt.OperationOptions) (methodExamples, error) {
@@ -104,7 +108,7 @@ func (g *fileGen) loadExamples(oo *pckt.OperationOptions) (methodExamples, error
 func (g *fileGen) loadExample(ex *pckt.Example) (*example, error) {
 	switch {
 	case ex.HasValue():
-		return &example{data: []byte(ex.GetValue())}, nil
+		return &example{data: []byte(ex.GetValue()), infer: ex.GetInferSchema()}, nil
 	case ex.HasFile():
 		if g.exampleFiles == nil {
 			return nil, fmt.Errorf("example files are not available")
@@ -114,9 +118,28 @@ func (g *fileGen) loadExample(ex *pckt.Example) (*example, error) {
 			return nil, err
 		}
 		ext := path.Ext(ex.GetFile())
-		return &example{data: data, yaml: ext == ".yaml" || ext == ".yml"}, nil
+		return &example{data: data, yaml: ext == ".yaml" || ext == ".yml", infer: ex.GetInferSchema()}, nil
+	case ex.GetInferSchema():
+		return nil, fmt.Errorf("infer_schema requires a value or a file")
 	}
 	return nil, nil
+}
+
+// inferredSchema infers the schema of a decoded example, registers it as a
+// component and returns a reference to it.
+func (g *fileGen) inferredSchema(name string, value any, contentType string) (*openapi.Schema, error) {
+	node, ok := value.(openapi.Node)
+	if !ok || !isJSONMediaType(contentType) {
+		return nil, fmt.Errorf("infer_schema requires a JSON content type, got %s", contentType)
+	}
+	if _, exists := g.schemas[name]; exists && !g.inferred[name] {
+		return nil, fmt.Errorf("inferred schema name %s is already used by a message schema", name)
+	}
+	// The example is not written with the inferred schema: it may be large,
+	// and the schema carries a sample value for every property instead.
+	g.schemas[name] = inferSchema(node.Node)
+	g.inferred[name] = true
+	return ref(name), nil
 }
 
 // decode returns the example value for a content type: parsed JSON (or YAML)

@@ -84,6 +84,16 @@ option (pckt.openapi.operation) = {
 };
 ```
 
+With `infer_schema: true` on an example, the body schema is inferred from it,
+for untyped bodies such as `google.protobuf.Struct`; the example itself is not
+written, each property gets a sample value instead:
+
+```proto
+option (pckt.openapi.operation) = {
+  response_example: {file: "shop/stats.json" infer_schema: true}
+};
+```
+
 `google.api.HttpBody` requests and responses are documented as raw bodies,
 with the content type set by `request_content_type` / `response_content_type`.
 
