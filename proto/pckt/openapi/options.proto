@@ -114,6 +114,12 @@ message FieldOptions {
   // typed like `example`: literal for strings, parsed as JSON otherwise.
   // Named `in` as `enum` is a reserved keyword.
   string in = 18;
+
+  // Query parameter name, replacing the default `parent.child` JSON path
+  // (e.g. "display[variants]" for a custom query parser). Nested fields of a
+  // renamed message field are prefixed with it. Request and response bodies
+  // keep the protojson name.
+  string name = 19;
 }
 
 message SchemaOptions {

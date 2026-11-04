@@ -259,7 +259,7 @@ paths:
             maximum: 100
             examples:
               - 20
-        - name: page.pageToken
+        - name: page[token]
           in: query
           description: Token returned by a previous call.
           schema:

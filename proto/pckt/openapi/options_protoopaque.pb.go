@@ -204,6 +204,7 @@ type FieldOptions struct {
 	xxx_hidden_MaxItems    uint64                     `protobuf:"varint,16,opt,name=max_items,json=maxItems,proto3,oneof"`
 	xxx_hidden_Extensions  map[string]*structpb.Value `protobuf:"bytes,17,rep,name=extensions,proto3" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	xxx_hidden_In          string                     `protobuf:"bytes,18,opt,name=in,proto3"`
+	xxx_hidden_Name        string                     `protobuf:"bytes,19,opt,name=name,proto3"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -354,6 +355,13 @@ func (x *FieldOptions) GetIn() string {
 	return ""
 }
 
+func (x *FieldOptions) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
 func (x *FieldOptions) SetExample(v string) {
 	x.xxx_hidden_Example = v
 }
@@ -392,32 +400,32 @@ func (x *FieldOptions) SetWriteOnly(v bool) {
 
 func (x *FieldOptions) SetMinimum(v float64) {
 	x.xxx_hidden_Minimum = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 17)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 18)
 }
 
 func (x *FieldOptions) SetMaximum(v float64) {
 	x.xxx_hidden_Maximum = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 17)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 18)
 }
 
 func (x *FieldOptions) SetMinLength(v uint64) {
 	x.xxx_hidden_MinLength = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 17)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 18)
 }
 
 func (x *FieldOptions) SetMaxLength(v uint64) {
 	x.xxx_hidden_MaxLength = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 17)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 18)
 }
 
 func (x *FieldOptions) SetMinItems(v uint64) {
 	x.xxx_hidden_MinItems = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 17)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 18)
 }
 
 func (x *FieldOptions) SetMaxItems(v uint64) {
 	x.xxx_hidden_MaxItems = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 17)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 18)
 }
 
 func (x *FieldOptions) SetExtensions(v map[string]*structpb.Value) {
@@ -426,6 +434,10 @@ func (x *FieldOptions) SetExtensions(v map[string]*structpb.Value) {
 
 func (x *FieldOptions) SetIn(v string) {
 	x.xxx_hidden_In = v
+}
+
+func (x *FieldOptions) SetName(v string) {
+	x.xxx_hidden_Name = v
 }
 
 func (x *FieldOptions) HasMinimum() bool {
@@ -537,6 +549,11 @@ type FieldOptions_builder struct {
 	// typed like `example`: literal for strings, parsed as JSON otherwise.
 	// Named `in` as `enum` is a reserved keyword.
 	In string
+	// Query parameter name, replacing the default `parent.child` JSON path
+	// (e.g. "display[variants]" for a custom query parser). Nested fields of a
+	// renamed message field are prefixed with it. Request and response bodies
+	// keep the protojson name.
+	Name string
 }
 
 func (b0 FieldOptions_builder) Build() *FieldOptions {
@@ -553,31 +570,32 @@ func (b0 FieldOptions_builder) Build() *FieldOptions {
 	x.xxx_hidden_ReadOnly = b.ReadOnly
 	x.xxx_hidden_WriteOnly = b.WriteOnly
 	if b.Minimum != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 17)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 18)
 		x.xxx_hidden_Minimum = *b.Minimum
 	}
 	if b.Maximum != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 17)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 18)
 		x.xxx_hidden_Maximum = *b.Maximum
 	}
 	if b.MinLength != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 17)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 18)
 		x.xxx_hidden_MinLength = *b.MinLength
 	}
 	if b.MaxLength != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 17)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 18)
 		x.xxx_hidden_MaxLength = *b.MaxLength
 	}
 	if b.MinItems != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 17)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 18)
 		x.xxx_hidden_MinItems = *b.MinItems
 	}
 	if b.MaxItems != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 17)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 18)
 		x.xxx_hidden_MaxItems = *b.MaxItems
 	}
 	x.xxx_hidden_Extensions = b.Extensions
 	x.xxx_hidden_In = b.In
+	x.xxx_hidden_Name = b.Name
 	return m0
 }
 
@@ -1280,7 +1298,7 @@ var File_pckt_openapi_options_proto protoreflect.FileDescriptor
 
 const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\n" +
-	"\x1apckt/openapi/options.proto\x12\fpckt.openapi\x1a\x1cgoogle/protobuf/struct.proto\"\x94\x06\n" +
+	"\x1apckt/openapi/options.proto\x12\fpckt.openapi\x1a\x1cgoogle/protobuf/struct.proto\"\xa8\x06\n" +
 	"\fFieldOptions\x12\x18\n" +
 	"\aexample\x18\x02 \x01(\tR\aexample\x12+\n" +
 	"\x04type\x18\x03 \x01(\x0e2\x17.pckt.openapi.FieldTypeR\x04type\x121\n" +
@@ -1306,7 +1324,8 @@ const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\n" +
 	"extensions\x18\x11 \x03(\v2*.pckt.openapi.FieldOptions.ExtensionsEntryR\n" +
 	"extensions\x12\x0e\n" +
-	"\x02in\x18\x12 \x01(\tR\x02in\x1aU\n" +
+	"\x02in\x18\x12 \x01(\tR\x02in\x12\x12\n" +
+	"\x04name\x18\x13 \x01(\tR\x04name\x1aU\n" +
 	"\x0fExtensionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\n" +

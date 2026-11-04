@@ -400,7 +400,7 @@
             }
           },
           {
-            "name": "page.pageToken",
+            "name": "page[token]",
             "in": "query",
             "description": "Token returned by a previous call.",
             "schema": {

@@ -220,7 +220,12 @@ type FieldOptions struct {
 	// `enum` for documentation without declaring a Protobuf enum. Values are
 	// typed like `example`: literal for strings, parsed as JSON otherwise.
 	// Named `in` as `enum` is a reserved keyword.
-	In            string `protobuf:"bytes,18,opt,name=in,proto3" json:"in,omitempty"`
+	In string `protobuf:"bytes,18,opt,name=in,proto3" json:"in,omitempty"`
+	// Query parameter name, replacing the default `parent.child` JSON path
+	// (e.g. "display[variants]" for a custom query parser). Nested fields of a
+	// renamed message field are prefixed with it. Request and response bodies
+	// keep the protojson name.
+	Name          string `protobuf:"bytes,19,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -369,6 +374,13 @@ func (x *FieldOptions) GetIn() string {
 	return ""
 }
 
+func (x *FieldOptions) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 func (x *FieldOptions) SetExample(v string) {
 	x.Example = v
 }
@@ -435,6 +447,10 @@ func (x *FieldOptions) SetExtensions(v map[string]*structpb.Value) {
 
 func (x *FieldOptions) SetIn(v string) {
 	x.In = v
+}
+
+func (x *FieldOptions) SetName(v string) {
+	x.Name = v
 }
 
 func (x *FieldOptions) HasMinimum() bool {
@@ -540,6 +556,11 @@ type FieldOptions_builder struct {
 	// typed like `example`: literal for strings, parsed as JSON otherwise.
 	// Named `in` as `enum` is a reserved keyword.
 	In string
+	// Query parameter name, replacing the default `parent.child` JSON path
+	// (e.g. "display[variants]" for a custom query parser). Nested fields of a
+	// renamed message field are prefixed with it. Request and response bodies
+	// keep the protojson name.
+	Name string
 }
 
 func (b0 FieldOptions_builder) Build() *FieldOptions {
@@ -563,6 +584,7 @@ func (b0 FieldOptions_builder) Build() *FieldOptions {
 	x.MaxItems = b.MaxItems
 	x.Extensions = b.Extensions
 	x.In = b.In
+	x.Name = b.Name
 	return m0
 }
 
@@ -1300,7 +1322,7 @@ var File_pckt_openapi_options_proto protoreflect.FileDescriptor
 
 const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\n" +
-	"\x1apckt/openapi/options.proto\x12\fpckt.openapi\x1a\x1cgoogle/protobuf/struct.proto\"\x94\x06\n" +
+	"\x1apckt/openapi/options.proto\x12\fpckt.openapi\x1a\x1cgoogle/protobuf/struct.proto\"\xa8\x06\n" +
 	"\fFieldOptions\x12\x18\n" +
 	"\aexample\x18\x02 \x01(\tR\aexample\x12+\n" +
 	"\x04type\x18\x03 \x01(\x0e2\x17.pckt.openapi.FieldTypeR\x04type\x121\n" +
@@ -1326,7 +1348,8 @@ const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\n" +
 	"extensions\x18\x11 \x03(\v2*.pckt.openapi.FieldOptions.ExtensionsEntryR\n" +
 	"extensions\x12\x0e\n" +
-	"\x02in\x18\x12 \x01(\tR\x02in\x1aU\n" +
+	"\x02in\x18\x12 \x01(\tR\x02in\x12\x12\n" +
+	"\x04name\x18\x13 \x01(\tR\x04name\x1aU\n" +
 	"\x0fExtensionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\n" +

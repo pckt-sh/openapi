@@ -187,7 +187,7 @@ service HelloService {
 
 | Extension                  | Options                                                                                                   |
 | -------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `(pckt.openapi.field)`     | `example`, `type`, `format`, `pattern`, `deprecated`, `hidden`, `required`, `read_only`, `write_only`, `minimum`, `maximum`, `min_length`, `max_length`, `min_items`, `max_items`, `in`, `extensions` |
+| `(pckt.openapi.field)`     | `example`, `type`, `format`, `pattern`, `deprecated`, `hidden`, `required`, `read_only`, `write_only`, `minimum`, `maximum`, `min_length`, `max_length`, `min_items`, `max_items`, `in`, `name`, `extensions` |
 | `(pckt.openapi.schema)`    | `title`, `type`, `hidden`, `example` (JSON), `deprecated`, `extensions`                                    |
 | `(pckt.openapi.operation)` | `summary`, `tags`, `operation_id`, `deprecated`, `hidden`, `extensions`, `request_example`, `response_example`, `request_content_type`, `response_content_type` |
 | `(pckt.openapi.tag)`       | `name`, `external_docs`                                                                                   |
@@ -197,6 +197,9 @@ service HelloService {
 - `in` lists the allowed values, comma separated (`in: "A,B,C"`), written as
   the schema `enum` for documentation only, without a Protobuf enum. Values are
   typed like `example`; on repeated and map fields it applies to the items.
+- `name` overrides the query parameter name, replacing the `parent.child` path
+  (`name: "display[variants]"`) for custom query parsers. Nested fields of a
+  renamed message field use it as prefix. Bodies keep the protojson names.
 - `extensions` is a `map<string, google.protobuf.Value>`; keys must start with
   `x-`, generation fails otherwise. They are written inline in the schema or operation.
 - `hidden` on a message also hides every field of that message type.

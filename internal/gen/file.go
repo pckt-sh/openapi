@@ -405,7 +405,8 @@ func hasTopLevel(paths map[string]bool) bool {
 }
 
 // queryParams flattens the fields of a message into query parameters, nested
-// messages being expanded as `parent.child`.
+// messages being expanded as `parent.child`, unless renamed with the field
+// `name` option.
 func (g *fileGen) queryParams(m protoreflect.MessageDescriptor, protoPrefix, jsonPrefix string, exclude map[string]bool, visiting map[protoreflect.FullName]bool) []*openapi.Parameter {
 	var params []*openapi.Parameter
 
@@ -414,6 +415,9 @@ func (g *fileGen) queryParams(m protoreflect.MessageDescriptor, protoPrefix, jso
 		f := fields.Get(i)
 		protoName := protoPrefix + string(f.Name())
 		jsonName := jsonPrefix + f.JSONName()
+		if n := fieldOptions(f).GetName(); n != "" {
+			jsonName = n
+		}
 
 		if exclude[protoName] || fieldHidden(f) || f.IsMap() {
 			continue

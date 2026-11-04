@@ -14,7 +14,7 @@ message PageRequest {
   }];
 
   // Token returned by a previous call.
-  string page_token = 2;
+  string page_token = 2 [(pckt.openapi.field).name = "page[token]"];
 }
 
 // Visibility of a resource.
