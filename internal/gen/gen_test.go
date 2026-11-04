@@ -191,6 +191,12 @@ func TestParseOptions(t *testing.T) {
 	if _, err := ParseOptions("unknown=1"); err == nil {
 		t.Error("expected error for unknown parameter")
 	}
+	if _, err := ParseOptions("json_names=snake"); err == nil {
+		t.Error("expected error for invalid json_names")
+	}
+	if opts, err := ParseOptions("json_names=proto"); err != nil || !opts.ProtoNames {
+		t.Errorf("expected proto names, got %+v (%v)", opts, err)
+	}
 	opts, err := ParseOptions(" format=json , title=A=B ,server=https://a,server=https://b")
 	if err != nil {
 		t.Fatal(err)
@@ -239,5 +245,47 @@ func TestMerge(t *testing.T) {
 				t.Errorf("merged document differs from %s", name)
 			}
 		})
+	}
+}
+
+func TestProtoNames(t *testing.T) {
+	type doc struct {
+		Paths map[string]map[string]struct {
+			Parameters []struct{ Name string }
+		}
+		Components struct {
+			Schemas map[string]struct {
+				Properties map[string]any
+			}
+		}
+	}
+	for param, want := range map[string][]string{
+		"format=json":                  {"authorEmail", "page.pageSize", "updatedAfter"},
+		"format=json,json_names=proto": {"author_email", "page.page_size", "updated_after"},
+	} {
+		var d doc
+		if err := json.Unmarshal([]byte(generate(t, param)["example/library.openapi.json"]), &d); err != nil {
+			t.Fatal(err)
+		}
+		if _, ok := d.Components.Schemas["example.Book"].Properties[want[0]]; !ok {
+			t.Errorf("%q: example.Book has no %s property", param, want[0])
+		}
+		params := map[string]bool{}
+		for _, p := range d.Paths["/v1/{parent}/books"]["get"].Parameters {
+			params[p.Name] = true
+		}
+		// the name option takes precedence over both naming modes
+		for _, name := range append(want[1:], "page[token]") {
+			if !params[name] {
+				t.Errorf("%q: missing query parameter %s in %v", param, name, params)
+			}
+		}
+	}
+}
+
+func TestCleanComment(t *testing.T) {
+	got := cleanComment(" buf:lint:ignore FIELD_LOWER_SNAKE_CASE\n Served as is.\n  Indented.\n")
+	if want := "Served as is.\n Indented."; got != want {
+		t.Errorf("cleanComment = %q, want %q", got, want)
 	}
 }

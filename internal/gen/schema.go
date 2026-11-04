@@ -168,9 +168,9 @@ func (g *fileGen) messageSchema(m protoreflect.MessageDescriptor, skip func(prot
 		if fieldHidden(f) || (skip != nil && skip(f)) {
 			continue
 		}
-		s.Properties = append(s.Properties, openapi.Property{Name: f.JSONName(), Schema: g.fieldSchema(f)})
+		s.Properties = append(s.Properties, openapi.Property{Name: g.jsonName(f), Schema: g.fieldSchema(f)})
 		if fieldRequired(f) {
-			s.Required = append(s.Required, f.JSONName())
+			s.Required = append(s.Required, g.jsonName(f))
 		}
 	}
 
@@ -442,4 +442,13 @@ func fieldByPath(m protoreflect.MessageDescriptor, path string) protoreflect.Fie
 		}
 	}
 	return f
+}
+
+// jsonName is the name of a field in JSON documents: its JSON name, or its
+// proto name with the json_names=proto option.
+func (g *fileGen) jsonName(f protoreflect.FieldDescriptor) string {
+	if g.opts.ProtoNames {
+		return string(f.Name())
+	}
+	return f.JSONName()
 }

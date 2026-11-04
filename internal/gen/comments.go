@@ -13,11 +13,15 @@ func comments(d protoreflect.Descriptor) string {
 }
 
 // cleanComment strips the single space protoc keeps after `//` on every line,
-// and surrounding blank lines.
+// `buf:lint:ignore` directives and surrounding blank lines.
 func cleanComment(c string) string {
-	lines := strings.Split(c, "\n")
-	for i, line := range lines {
-		lines[i] = strings.TrimRight(strings.TrimPrefix(line, " "), " \t")
+	var lines []string
+	for line := range strings.SplitSeq(c, "\n") {
+		line = strings.TrimRight(strings.TrimPrefix(line, " "), " \t")
+		if strings.HasPrefix(line, "buf:lint:ignore ") {
+			continue
+		}
+		lines = append(lines, line)
 	}
 	return strings.TrimSpace(strings.Join(lines, "\n"))
 }

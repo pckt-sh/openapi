@@ -38,6 +38,10 @@ type Options struct {
 	// ExamplesDir is the directory example files are read from, relative to
 	// the working directory of protoc or buf. Defaults to the working directory.
 	ExamplesDir string
+	// ProtoNames names properties and query parameters after the proto field
+	// names instead of their JSON names, matching a server marshalling with
+	// protojson `UseProtoNames` (grpc-gateway `runtime.JSONPb{UseProtoNames: true}`).
+	ProtoNames bool
 }
 
 // ParseOptions parses the plugin parameter string.
@@ -74,6 +78,15 @@ func ParseOptions(param string) (Options, error) {
 				return opts, fmt.Errorf("examples_dir requires a directory")
 			}
 			opts.ExamplesDir = value
+		case "json_names":
+			switch value {
+			case "json":
+				opts.ProtoNames = false
+			case "proto":
+				opts.ProtoNames = true
+			default:
+				return opts, fmt.Errorf("invalid json_names %q: must be json or proto", value)
+			}
 		default:
 			return opts, fmt.Errorf("unknown parameter %q", key)
 		}

@@ -116,6 +116,7 @@ Options are `key=value` pairs, separated by commas with protoc or given as `opt`
 | `version` | `0.0.0`                     | `info.version`                                                              |
 | `server`  |                             | server of the merged document, `URL` or `URL\|description`, can be repeated  |
 | `examples_dir` | working directory      | directory of example files, relative to where `buf`/`protoc` runs          |
+| `json_names` | `json`                   | `json` names properties and query parameters after the field JSON names (`json_name` or lowerCamelCase), `proto` after the proto field names, for servers marshalling with protojson `UseProtoNames` |
 
 Files without HTTP operations, messages nor enums produce no output.
 `merge` applies the same [rules](#merge-rules) as `pckt-openapi-merge`.

@@ -414,7 +414,7 @@ func (g *fileGen) queryParams(m protoreflect.MessageDescriptor, protoPrefix, jso
 	for i := range fields.Len() {
 		f := fields.Get(i)
 		protoName := protoPrefix + string(f.Name())
-		jsonName := jsonPrefix + f.JSONName()
+		jsonName := jsonPrefix + g.jsonName(f)
 		if n := fieldOptions(f).GetName(); n != "" {
 			jsonName = n
 		}
