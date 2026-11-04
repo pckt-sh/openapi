@@ -141,7 +141,7 @@ type Schema struct {
 	Type                 Types      `json:"type,omitempty" yaml:"type,omitempty"`
 	Format               string     `json:"format,omitempty" yaml:"format,omitempty"`
 	Pattern              string     `json:"pattern,omitempty" yaml:"pattern,omitempty"`
-	Enum                 []string   `json:"enum,omitempty" yaml:"enum,omitempty"`
+	Enum                 []any      `json:"enum,omitempty" yaml:"enum,omitempty"`
 	Properties           Properties `json:"properties,omitempty" yaml:"properties,omitempty"`
 	Required             []string   `json:"required,omitempty" yaml:"required,omitempty"`
 	AdditionalProperties *Schema    `json:"additionalProperties,omitempty" yaml:"additionalProperties,omitempty"`

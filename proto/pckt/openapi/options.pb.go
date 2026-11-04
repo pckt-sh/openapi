@@ -215,7 +215,12 @@ type FieldOptions struct {
 	MinItems *uint64 `protobuf:"varint,15,opt,name=min_items,json=minItems,proto3,oneof" json:"min_items,omitempty"`
 	MaxItems *uint64 `protobuf:"varint,16,opt,name=max_items,json=maxItems,proto3,oneof" json:"max_items,omitempty"`
 	// OpenAPI extensions added to the field schema, keys must start with `x-`
-	Extensions    map[string]*structpb.Value `protobuf:"bytes,17,rep,name=extensions,proto3" json:"extensions,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Extensions map[string]*structpb.Value `protobuf:"bytes,17,rep,name=extensions,proto3" json:"extensions,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Allowed values, comma separated (e.g. "A,B,C"), written as the schema
+	// `enum` for documentation without declaring a Protobuf enum. Values are
+	// typed like `example`: literal for strings, parsed as JSON otherwise.
+	// Named `in` as `enum` is a reserved keyword.
+	In            string `protobuf:"bytes,18,opt,name=in,proto3" json:"in,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -357,6 +362,13 @@ func (x *FieldOptions) GetExtensions() map[string]*structpb.Value {
 	return nil
 }
 
+func (x *FieldOptions) GetIn() string {
+	if x != nil {
+		return x.In
+	}
+	return ""
+}
+
 func (x *FieldOptions) SetExample(v string) {
 	x.Example = v
 }
@@ -419,6 +431,10 @@ func (x *FieldOptions) SetMaxItems(v uint64) {
 
 func (x *FieldOptions) SetExtensions(v map[string]*structpb.Value) {
 	x.Extensions = v
+}
+
+func (x *FieldOptions) SetIn(v string) {
+	x.In = v
 }
 
 func (x *FieldOptions) HasMinimum() bool {
@@ -519,6 +535,11 @@ type FieldOptions_builder struct {
 	MaxItems *uint64
 	// OpenAPI extensions added to the field schema, keys must start with `x-`
 	Extensions map[string]*structpb.Value
+	// Allowed values, comma separated (e.g. "A,B,C"), written as the schema
+	// `enum` for documentation without declaring a Protobuf enum. Values are
+	// typed like `example`: literal for strings, parsed as JSON otherwise.
+	// Named `in` as `enum` is a reserved keyword.
+	In string
 }
 
 func (b0 FieldOptions_builder) Build() *FieldOptions {
@@ -541,6 +562,7 @@ func (b0 FieldOptions_builder) Build() *FieldOptions {
 	x.MinItems = b.MinItems
 	x.MaxItems = b.MaxItems
 	x.Extensions = b.Extensions
+	x.In = b.In
 	return m0
 }
 
@@ -1278,7 +1300,7 @@ var File_pckt_openapi_options_proto protoreflect.FileDescriptor
 
 const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\n" +
-	"\x1apckt/openapi/options.proto\x12\fpckt.openapi\x1a\x1cgoogle/protobuf/struct.proto\"\x84\x06\n" +
+	"\x1apckt/openapi/options.proto\x12\fpckt.openapi\x1a\x1cgoogle/protobuf/struct.proto\"\x94\x06\n" +
 	"\fFieldOptions\x12\x18\n" +
 	"\aexample\x18\x02 \x01(\tR\aexample\x12+\n" +
 	"\x04type\x18\x03 \x01(\x0e2\x17.pckt.openapi.FieldTypeR\x04type\x121\n" +
@@ -1303,7 +1325,8 @@ const file_pckt_openapi_options_proto_rawDesc = "" +
 	"\tmax_items\x18\x10 \x01(\x04H\x05R\bmaxItems\x88\x01\x01\x12J\n" +
 	"\n" +
 	"extensions\x18\x11 \x03(\v2*.pckt.openapi.FieldOptions.ExtensionsEntryR\n" +
-	"extensions\x1aU\n" +
+	"extensions\x12\x0e\n" +
+	"\x02in\x18\x12 \x01(\tR\x02in\x1aU\n" +
 	"\x0fExtensionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\n" +

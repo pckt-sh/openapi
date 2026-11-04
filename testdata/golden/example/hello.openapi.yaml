@@ -25,6 +25,27 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/example.Visibility'
+        - name: language
+          in: query
+          description: Greeting language
+          schema:
+            type: string
+            enum:
+              - en
+              - fr
+              - de
+        - name: times
+          in: query
+          description: Repetitions
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int32
+              enum:
+                - 1
+                - 2
+                - 3
       responses:
         "200":
           description: A successful response.
@@ -51,6 +72,23 @@ components:
             - John
         visibility:
           $ref: '#/components/schemas/example.Visibility'
+        language:
+          description: Greeting language
+          type: string
+          enum:
+            - en
+            - fr
+            - de
+        times:
+          description: Repetitions
+          type: array
+          items:
+            type: integer
+            format: int32
+            enum:
+              - 1
+              - 2
+              - 3
     example.HelloResponse:
       type: object
       properties:

@@ -108,6 +108,12 @@ message FieldOptions {
 
   // OpenAPI extensions added to the field schema, keys must start with `x-`
   map<string, google.protobuf.Value> extensions = 17;
+
+  // Allowed values, comma separated (e.g. "A,B,C"), written as the schema
+  // `enum` for documentation without declaring a Protobuf enum. Values are
+  // typed like `example`: literal for strings, parsed as JSON otherwise.
+  // Named `in` as `enum` is a reserved keyword.
+  string in = 18;
 }
 
 message SchemaOptions {

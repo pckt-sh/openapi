@@ -14,6 +14,12 @@ message HelloRequest {
   }];
 
   Visibility visibility = 2;
+
+  // Greeting language
+  string language = 3 [(pckt.openapi.field).in = "en, fr,de"];
+
+  // Repetitions
+  repeated int32 times = 4 [(pckt.openapi.field).in = "1,2,3"];
 }
 
 message HelloResponse {

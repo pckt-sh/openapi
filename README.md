@@ -187,13 +187,16 @@ service HelloService {
 
 | Extension                  | Options                                                                                                   |
 | -------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `(pckt.openapi.field)`     | `example`, `type`, `format`, `pattern`, `deprecated`, `hidden`, `required`, `read_only`, `write_only`, `minimum`, `maximum`, `min_length`, `max_length`, `min_items`, `max_items`, `extensions` |
+| `(pckt.openapi.field)`     | `example`, `type`, `format`, `pattern`, `deprecated`, `hidden`, `required`, `read_only`, `write_only`, `minimum`, `maximum`, `min_length`, `max_length`, `min_items`, `max_items`, `in`, `extensions` |
 | `(pckt.openapi.schema)`    | `title`, `type`, `hidden`, `example` (JSON), `deprecated`, `extensions`                                    |
 | `(pckt.openapi.operation)` | `summary`, `tags`, `operation_id`, `deprecated`, `hidden`, `extensions`, `request_example`, `response_example`, `request_content_type`, `response_content_type` |
 | `(pckt.openapi.tag)`       | `name`, `external_docs`                                                                                   |
 
 - `example` is a string: for string schemas it is used literally (`"John"` →
   `John`), otherwise it is parsed as JSON (`"20"` → `20`).
+- `in` lists the allowed values, comma separated (`in: "A,B,C"`), written as
+  the schema `enum` for documentation only, without a Protobuf enum. Values are
+  typed like `example`; on repeated and map fields it applies to the items.
 - `extensions` is a `map<string, google.protobuf.Value>`; keys must start with
   `x-`, generation fails otherwise. They are written inline in the schema or operation.
 - `hidden` on a message also hides every field of that message type.

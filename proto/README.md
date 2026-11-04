@@ -68,7 +68,7 @@ service ShopService {
 
 | Extension                  | Applies to | Options                                                                                                    |
 | -------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------- |
-| `(pckt.openapi.field)`     | fields     | `example`, `type`, `format`, `pattern`, `deprecated`, `hidden`, `required`, `read_only`, `write_only`, `minimum`, `maximum`, `min_length`, `max_length`, `min_items`, `max_items`, `extensions` |
+| `(pckt.openapi.field)`     | fields     | `example`, `type`, `format`, `pattern`, `deprecated`, `hidden`, `required`, `read_only`, `write_only`, `minimum`, `maximum`, `min_length`, `max_length`, `min_items`, `max_items`, `in`, `extensions` |
 | `(pckt.openapi.schema)`    | messages   | `title`, `type`, `hidden`, `example` (JSON), `deprecated`, `extensions`                                     |
 | `(pckt.openapi.operation)` | methods    | `summary`, `tags`, `operation_id`, `deprecated`, `hidden`, `extensions`, `request_example`, `response_example`, `request_content_type`, `response_content_type` |
 | `(pckt.openapi.tag)`       | services   | `name`, `external_docs`                                                                                    |

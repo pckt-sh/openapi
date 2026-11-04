@@ -280,6 +280,18 @@ func applyValueOptions(s *openapi.Schema, fo *pckt.FieldOptions) {
 	if fo.HasMaxLength() {
 		s.MaxLength = proto.Uint64(fo.GetMaxLength())
 	}
+	if fo.GetIn() != "" {
+		kind := "string"
+		if len(s.Type) > 0 {
+			kind = s.Type[0]
+		}
+		s.Enum = nil
+		for _, v := range strings.Split(fo.GetIn(), ",") {
+			if v = strings.TrimSpace(v); v != "" {
+				s.Enum = append(s.Enum, parseExample(v, kind))
+			}
+		}
+	}
 }
 
 // applyType overrides the inferred type, e.g. to expose an int64 as a JSON number.
