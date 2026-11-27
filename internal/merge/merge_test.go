@@ -153,7 +153,7 @@ func TestJSONRoundTrip(t *testing.T) {
 }
 
 const docA = `
-openapi: 3.1.0
+openapi: 3.2.0
 info: {title: a.proto, version: 0.0.0}
 paths:
   /a:
@@ -168,7 +168,7 @@ tags:
 `
 
 const docB = `
-openapi: 3.1.0
+openapi: 3.2.0
 info: {title: b.proto, version: 0.0.0}
 paths:
   /a:
@@ -230,7 +230,7 @@ func TestMergeConflicts(t *testing.T) {
 
 func TestMergeBase(t *testing.T) {
 	base := `
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: Base API
   version: 2.0.0
@@ -261,7 +261,7 @@ x-custom: 1
 	if n := strings.Count(got, "https://base.example.com"); n != 1 {
 		t.Errorf("base server present %d times", n)
 	}
-	if !strings.HasPrefix(got, "openapi: 3.1.0\ninfo:") {
+	if !strings.HasPrefix(got, "openapi: 3.2.0\ninfo:") {
 		t.Errorf("unexpected top-level order:\n%s", got)
 	}
 }

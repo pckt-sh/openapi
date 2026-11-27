@@ -1,5 +1,5 @@
 // Package gen implements protoc-gen-pckt-openapi: it turns every .proto file of a
-// CodeGeneratorRequest into its own OpenAPI 3.1 document.
+// CodeGeneratorRequest into its own OpenAPI 3.2 document.
 package gen
 
 import (

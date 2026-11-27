@@ -178,6 +178,7 @@ message OperationOptions {
   string request_content_type = 10;
 
   // Content type of the successful response, defaults to `application/json`,
+  // `text/event-stream` for server streaming methods,
   // or `application/octet-stream` for google.api.HttpBody
   string response_content_type = 11;
 }

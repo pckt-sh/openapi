@@ -17,7 +17,7 @@ import (
 )
 
 // DefaultVersion is the OpenAPI version used when no input declares one.
-const DefaultVersion = "3.1.0"
+const DefaultVersion = "3.2.0"
 
 // Input is a named OpenAPI document.
 type Input struct {

@@ -1,4 +1,4 @@
-// Package openapi contains the subset of the OpenAPI 3.1 document model
+// Package openapi contains the subset of the OpenAPI 3.2 document model
 // emitted by protoc-gen-pckt-openapi.
 package openapi
 
@@ -12,7 +12,7 @@ import (
 )
 
 // Version is the OpenAPI version written in generated documents.
-const Version = "3.1.0"
+const Version = "3.2.0"
 
 type Document struct {
 	OpenAPI    string      `json:"openapi" yaml:"openapi"`
@@ -110,8 +110,11 @@ type RequestBody struct {
 }
 
 type MediaType struct {
-	Schema  *Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
-	Example any     `json:"example,omitempty" yaml:"example,omitempty"`
+	Schema *Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
+	// ItemSchema is the schema of each item of a sequential media type,
+	// such as the events of `text/event-stream`.
+	ItemSchema *Schema `json:"itemSchema,omitempty" yaml:"itemSchema,omitempty"`
+	Example    any     `json:"example,omitempty" yaml:"example,omitempty"`
 }
 
 type Response struct {
@@ -157,6 +160,8 @@ type Schema struct {
 	WriteOnly            bool       `json:"writeOnly,omitempty" yaml:"writeOnly,omitempty"`
 	Deprecated           bool       `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
 	Examples             []any      `json:"examples,omitempty" yaml:"examples,omitempty"`
+	ContentMediaType     string     `json:"contentMediaType,omitempty" yaml:"contentMediaType,omitempty"`
+	ContentSchema        *Schema    `json:"contentSchema,omitempty" yaml:"contentSchema,omitempty"`
 	Extensions           Extensions `json:"-" yaml:",inline"`
 }
 

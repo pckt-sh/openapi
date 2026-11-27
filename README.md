@@ -4,7 +4,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/pckt-sh/openapi.svg)](https://pkg.go.dev/github.com/pckt-sh/openapi)
 [![Buf](https://img.shields.io/badge/buf.build-pckt%2Fopenapi-blue)](https://buf.build/pckt/openapi)
 
-Generate OpenAPI 3.1 documents from Protocol Buffers services annotated with
+Generate OpenAPI 3.2 documents from Protocol Buffers services annotated with
 [`google.api.http`](https://github.com/googleapis/googleapis/blob/master/google/api/http.proto).
 
 | Component                 | Role                                                                    |
@@ -320,8 +320,8 @@ schemas from different files deduplicate on merge.
 
 ### HTTP
 
-Only methods with a `google.api.http` rule are emitted (streaming methods are
-skipped). Every binding, including `additional_bindings`, becomes an operation;
+Only methods with a `google.api.http` rule are emitted (client and
+bidirectional streaming methods are skipped). Every binding, including `additional_bindings`, becomes an operation;
 additional ones get an `_N` suffix on their operation ID (`Service_Method_1`).
 
 - **Path**: `{name=shelves/*/books/*}` becomes `{name}`, the segments are kept
@@ -334,6 +334,13 @@ additional ones get an `_N` suffix on their operation ID (`Service_Method_1`).
   `default` with `google.rpc.Status`.
 - **Content types**: `application/json`, overridable with `request_content_type`
   and `response_content_type`.
+- **Server streaming** (`returns (stream T)`): served as server-sent events.
+  The `200` response has a `text/event-stream` content type (overridable with
+  `response_content_type`) with an OpenAPI 3.2 `itemSchema` describing one
+  event: `data` is a JSON string whose `contentSchema` is `T`, plus the optional
+  `event`, `id` and `retry` fields. `response_example` is the data of one event,
+  written as a serialized event (`data: {...}`). A stream of
+  `google.api.HttpBody` stays a raw body.
 - **`google.api.HttpBody`**: as a request (`body: "*"` on an HttpBody input, or a
   `body` field of that type) or response (output or `response_body` field), it is
   a raw body as served by grpc-gateway: `string`/`binary` schema, content type
@@ -368,7 +375,7 @@ internal/gen                 the generator
   infer.go                   schema inference from example values
   schema.go                  messages, fields, enums, well-known types → schemas; annotations
   comments.go                leading comment cleaning
-internal/openapi             the OpenAPI 3.1 document model written by the generator
+internal/openapi             the OpenAPI 3.2 document model written by the generator
   node.go                    ordered JSON values (yaml.Node) and their JSON encoding
 internal/merge               the merger, shared by the CLI and the merge option
   merge.go                   merge of yaml.Node documents, conflict detection, YAML encoding
@@ -416,7 +423,7 @@ all of them are reported at once.
 
 The document model (`internal/openapi`) is a small set of structs written for
 the generator instead of a third-party one: it needs `title`, `readOnly`,
-`writeOnly`, 3.1 type lists (`[number, "null"]`), inline `x-*` extensions in
+`writeOnly`, 3.1+ type lists (`[number, "null"]`), inline `x-*` extensions in
 both formats, and properties kept in proto field order (`Properties` is an
 ordered slice with custom YAML and JSON marshalers). `Schema` and `Operation`
 have a `MarshalJSON` appending extensions to the object; YAML uses `,inline`.
@@ -476,6 +483,6 @@ Push a `v*` tag:
 - Path templates with patterns are collapsed to `{var}`: two rules differing
   only by the variable pattern (`/v1/{name=shelves/*}` and
   `/v1/{name=shelves/*/books/*}`) map to the same OpenAPI path and conflict.
-- Streaming methods are not emitted.
+- Client and bidirectional streaming methods are not emitted.
 - Path parameter values may contain `/` (e.g. `shelves/1/books/2`), which
   OpenAPI tooling does not always support; the `pattern` documents it.

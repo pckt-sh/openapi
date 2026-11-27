@@ -1,4 +1,4 @@
-// Command protoc-gen-pckt-openapi generates one OpenAPI 3.1 document per .proto file.
+// Command protoc-gen-pckt-openapi generates one OpenAPI 3.2 document per .proto file.
 package main
 
 import (

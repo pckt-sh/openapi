@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: example/library.proto
   version: 0.0.0
@@ -338,6 +338,80 @@ paths:
                 $ref: '#/components/schemas/google.rpc.Status'
       x-internal: false
       x-rate-limit: 10
+  /v1/{parent}/books:watch:
+    get:
+      tags:
+        - LibraryService
+      description: Watch the books of a shelf, a book being sent on every change.
+      operationId: LibraryService_WatchBooks
+      parameters:
+        - name: parent
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^shelves/[^/]+$
+        - name: page.pageSize
+          in: query
+          description: Maximum number of items to return.
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            examples:
+              - 20
+        - name: page[token]
+          in: query
+          description: Token returned by a previous call.
+          schema:
+            type: string
+        - name: visibility
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/example.Visibility'
+        - name: updatedAfter
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: A stream of server-sent events, the data of each event being a JSON-encoded response.
+          content:
+            text/event-stream:
+              itemSchema:
+                type: object
+                properties:
+                  data:
+                    description: The JSON-encoded response.
+                    type: string
+                    contentMediaType: application/json
+                    contentSchema:
+                      $ref: '#/components/schemas/example.Book'
+                  event:
+                    description: The event type.
+                    type: string
+                  id:
+                    description: The event identifier.
+                    type: string
+                  retry:
+                    description: The reconnection time, in milliseconds.
+                    type: integer
+                    minimum: 0
+                required:
+                  - data
+              example: |+
+                data: {"name":"shelves/1/books/2","title":"Dune","authorEmail":"frank@example.com","pageCount":"412","tags":["sci-fi","classic"],"visibility":"VISIBILITY_PUBLIC","createTime":"1965-08-01T00:00:00Z","rating":4.8}
+
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/google.rpc.Status'
   /v1/{parent}/stats:
     get:
       tags:

@@ -235,6 +235,22 @@ service LibraryService {
     };
   }
 
+  // Watch the books of a shelf, a book being sent on every change.
+  rpc WatchBooks(ListBooksRequest) returns (stream Book) {
+    option (google.api.http) = {get: "/v1/{parent=shelves/*}/books:watch"};
+    option (pckt.openapi.operation) = {
+      response_example: {file: "library/book.json"}
+    };
+  }
+
+  // Client streaming has no HTTP equivalent and is skipped.
+  rpc ImportBooks(stream CreateBookRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/{parent=shelves/*}/books:import"
+      body: "*"
+    };
+  }
+
   rpc Secret(GetBookRequest) returns (Book) {
     option (google.api.http) = {get: "/v1/secret"};
     option (pckt.openapi.operation) = {hidden: true};

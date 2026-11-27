@@ -1,7 +1,7 @@
 # pckt/openapi
 
 Annotations for [`protoc-gen-pckt-openapi`](https://github.com/pckt-sh/openapi),
-a protoc / buf plugin generating OpenAPI 3.1 documents from services annotated
+a protoc / buf plugin generating OpenAPI 3.2 documents from services annotated
 with `google.api.http`.
 
 Annotations are optional: every message, field and HTTP-annotated method is

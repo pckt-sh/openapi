@@ -749,6 +749,7 @@ type OperationOptions struct {
 	// or `application/octet-stream` for google.api.HttpBody
 	RequestContentType string `protobuf:"bytes,10,opt,name=request_content_type,json=requestContentType,proto3" json:"request_content_type,omitempty"`
 	// Content type of the successful response, defaults to `application/json`,
+	// `text/event-stream` for server streaming methods,
 	// or `application/octet-stream` for google.api.HttpBody
 	ResponseContentType string `protobuf:"bytes,11,opt,name=response_content_type,json=responseContentType,proto3" json:"response_content_type,omitempty"`
 	unknownFields       protoimpl.UnknownFields
@@ -935,6 +936,7 @@ type OperationOptions_builder struct {
 	// or `application/octet-stream` for google.api.HttpBody
 	RequestContentType string
 	// Content type of the successful response, defaults to `application/json`,
+	// `text/event-stream` for server streaming methods,
 	// or `application/octet-stream` for google.api.HttpBody
 	ResponseContentType string
 }

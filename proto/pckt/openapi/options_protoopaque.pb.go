@@ -928,6 +928,7 @@ type OperationOptions_builder struct {
 	// or `application/octet-stream` for google.api.HttpBody
 	RequestContentType string
 	// Content type of the successful response, defaults to `application/json`,
+	// `text/event-stream` for server streaming methods,
 	// or `application/octet-stream` for google.api.HttpBody
 	ResponseContentType string
 }

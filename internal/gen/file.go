@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"regexp"
@@ -132,8 +133,9 @@ func (g *fileGen) addMethod(svc protoreflect.ServiceDescriptor, m protoreflect.M
 	if opts == nil || !proto.HasExtension(opts, annotations.E_Http) {
 		return false, nil
 	}
-	// gRPC-gateway style streaming is not representable as a JSON operation.
-	if m.IsStreamingClient() || m.IsStreamingServer() {
+	// Server streaming is served as server-sent events; client and
+	// bidirectional streaming have no HTTP/1.1 request-response equivalent.
+	if m.IsStreamingClient() {
 		return false, nil
 	}
 
@@ -348,21 +350,40 @@ func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.Http
 		resp = rawSchema()
 	}
 	contentType := mediaType(oo.GetResponseContentType(), raw)
-	media := &openapi.MediaType{Schema: resp}
-	if media.Example, err = examples.response.decode(contentType); err != nil {
+	description := "A successful response."
+	// dataType is the content type of examples: for server-sent events, the
+	// example is the data of one event, a JSON-encoded response message.
+	dataType, sse := contentType, false
+	if m.IsStreamingServer() && !raw {
+		if oo.GetResponseContentType() == "" {
+			contentType = eventStreamContentType
+		}
+		if isEventStream(contentType) {
+			dataType, sse = jsonContentType, true
+			description = "A stream of server-sent events, the data of each event being a JSON-encoded response."
+		}
+	}
+	example, err := examples.response.decode(dataType)
+	if err != nil {
 		return nil, fmt.Errorf("response_example: %w", err)
 	}
 	if examples.response != nil && examples.response.infer {
-		if media.Schema, err = g.inferredSchema(examples.responseName, media.Example, contentType); err != nil {
+		if resp, err = g.inferredSchema(examples.responseName, example, dataType); err != nil {
 			return nil, fmt.Errorf("response_example: %w", err)
 		}
-		media.Example = nil
+		example = nil
+	}
+	media := &openapi.MediaType{Schema: resp, Example: example}
+	if sse {
+		if media, err = eventStream(resp, example); err != nil {
+			return nil, fmt.Errorf("response_example: %w", err)
+		}
 	}
 
 	g.schemas[statusSchemaName] = statusSchema()
 	op.Responses = map[string]*openapi.Response{
 		"200": {
-			Description: "A successful response.",
+			Description: description,
 			Content:     map[string]*openapi.MediaType{contentType: media},
 		},
 		"default": {
@@ -372,6 +393,43 @@ func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.Http
 	}
 
 	return op, nil
+}
+
+// eventStream returns the media type of server-sent events whose data is a
+// JSON-encoded message of the given schema. The example, the data of one
+// event, is written as a serialized event.
+func eventStream(data *openapi.Schema, example any) (*openapi.MediaType, error) {
+	str := func(desc string) *openapi.Schema {
+		return &openapi.Schema{Type: openapi.Types{"string"}, Description: desc}
+	}
+	item := &openapi.Schema{
+		Type: openapi.Types{"object"},
+		Properties: openapi.Properties{
+			{Name: "data", Schema: &openapi.Schema{
+				Type:             openapi.Types{"string"},
+				Description:      "The JSON-encoded response.",
+				ContentMediaType: jsonContentType,
+				ContentSchema:    data,
+			}},
+			{Name: "event", Schema: str("The event type.")},
+			{Name: "id", Schema: str("The event identifier.")},
+			{Name: "retry", Schema: &openapi.Schema{
+				Type:        openapi.Types{"integer"},
+				Description: "The reconnection time, in milliseconds.",
+				Minimum:     new(float64),
+			}},
+		},
+		Required: []string{"data"},
+	}
+	media := &openapi.MediaType{ItemSchema: item}
+	if node, ok := example.(openapi.Node); ok {
+		var buf bytes.Buffer
+		if err := openapi.WriteJSON(&buf, node.Node); err != nil {
+			return nil, err
+		}
+		media.Example = "data: " + buf.String() + "\n\n"
+	}
+	return media, nil
 }
 
 // segmentsPattern converts the segments of a path variable (`shelves/*/books/*`)

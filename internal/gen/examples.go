@@ -16,7 +16,10 @@ import (
 const (
 	jsonContentType   = "application/json"
 	binaryContentType = "application/octet-stream"
-	httpBodyName      = "google.api.HttpBody"
+	// eventStreamContentType is the response content type of server streaming
+	// methods, served as server-sent events.
+	eventStreamContentType = "text/event-stream"
+	httpBodyName           = "google.api.HttpBody"
 )
 
 // isHTTPBody reports whether a message is google.api.HttpBody, which
@@ -48,6 +51,14 @@ func isJSONMediaType(contentType string) bool {
 		mt = contentType
 	}
 	return mt == jsonContentType || strings.HasSuffix(mt, "+json")
+}
+
+func isEventStream(contentType string) bool {
+	mt, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		mt = contentType
+	}
+	return mt == eventStreamContentType
 }
 
 // exampleFiles reads example files from the examples_dir option. The
