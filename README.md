@@ -339,7 +339,8 @@ additional ones get an `_N` suffix on their operation ID (`Service_Method_1`).
   `response_content_type`) with an OpenAPI 3.2 `itemSchema` describing one
   event: `data` is a JSON string whose `contentSchema` is `T`, plus the optional
   `event`, `id` and `retry` fields. `response_example` is the data of one event,
-  written as a serialized event (`data: {...}`). A stream of
+  written as a serialized event (`data: {...}`), or an already serialized event
+  stream (starting with an `id:`, `data:`... field or a `: comment`), kept as is. A stream of
   `google.api.HttpBody` stays a raw body.
 - **`google.api.HttpBody`**: as a request (`body: "*"` on an HttpBody input, or a
   `body` field of that type) or response (output or `response_body` field), it is

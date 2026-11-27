@@ -153,6 +153,31 @@ func (g *fileGen) inferredSchema(name string, value any, contentType string) (*o
 	return ref(name), nil
 }
 
+// isEventStream reports whether the example is a serialized event stream
+// (`data: ...`, `id: ...`, `: comment`...) rather than the data of one event:
+// its first non-empty line is a comment or an event field.
+func (e *example) isEventStream() bool {
+	if e == nil {
+		return false
+	}
+	for line := range strings.Lines(string(e.data)) {
+		line = strings.TrimRight(line, "\r\n")
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, ":") {
+			return true
+		}
+		field, _, _ := strings.Cut(line, ":")
+		switch field {
+		case "data", "event", "id", "retry":
+			return true
+		}
+		return false
+	}
+	return false
+}
+
 // decode returns the example value for a content type: parsed JSON (or YAML)
 // for JSON content types, the raw text otherwise.
 func (e *example) decode(contentType string) (any, error) {

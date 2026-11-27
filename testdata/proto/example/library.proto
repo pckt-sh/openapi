@@ -243,6 +243,14 @@ service LibraryService {
     };
   }
 
+  // Watch the books of a shelf, with a serialized event stream as example.
+  rpc WatchShelf(GetShelfStatsRequest) returns (stream Book) {
+    option (google.api.http) = {get: "/v1/{parent=shelves/*}:watch"};
+    option (pckt.openapi.operation) = {
+      response_example: {value: ": ping\n\nid: 1\ndata: {\"name\": \"shelves/1/books/2\"}\n\n"}
+    };
+  }
+
   // Client streaming has no HTTP equivalent and is skipped.
   rpc ImportBooks(stream CreateBookRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {

@@ -363,8 +363,14 @@ func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.Http
 			description = "A stream of server-sent events, the data of each event being a JSON-encoded response."
 		}
 	}
-	example, err := examples.response.decode(dataType)
-	if err != nil {
+	var example any
+	if sse && examples.response.isEventStream() {
+		// Already a serialized event stream, written as is.
+		if examples.response.infer {
+			return nil, fmt.Errorf("response_example: infer_schema requires the data of one event, not a serialized event stream")
+		}
+		example = string(examples.response.data)
+	} else if example, err = examples.response.decode(dataType); err != nil {
 		return nil, fmt.Errorf("response_example: %w", err)
 	}
 	if examples.response != nil && examples.response.infer {
@@ -397,7 +403,8 @@ func (g *fileGen) operation(m protoreflect.MethodDescriptor, r *annotations.Http
 
 // eventStream returns the media type of server-sent events whose data is a
 // JSON-encoded message of the given schema. The example, the data of one
-// event, is written as a serialized event.
+// event, is written as a serialized event; a string example is already a
+// serialized event stream.
 func eventStream(data *openapi.Schema, example any) (*openapi.MediaType, error) {
 	str := func(desc string) *openapi.Schema {
 		return &openapi.Schema{Type: openapi.Types{"string"}, Description: desc}
@@ -422,9 +429,12 @@ func eventStream(data *openapi.Schema, example any) (*openapi.MediaType, error) 
 		Required: []string{"data"},
 	}
 	media := &openapi.MediaType{ItemSchema: item}
-	if node, ok := example.(openapi.Node); ok {
+	switch example := example.(type) {
+	case string:
+		media.Example = example
+	case openapi.Node:
 		var buf bytes.Buffer
-		if err := openapi.WriteJSON(&buf, node.Node); err != nil {
+		if err := openapi.WriteJSON(&buf, example.Node); err != nil {
 			return nil, err
 		}
 		media.Example = "data: " + buf.String() + "\n\n"

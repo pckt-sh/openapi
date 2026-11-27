@@ -33,7 +33,7 @@ jobs:
       - uses: bufbuild/buf-action@v1
         with:
           # keep in sync with the local buf: the descriptor set differs across versions
-          version: 1.73.0
+          version: 1.75.0
           setup_only: true
       - run: buf format --diff --exit-code
       - run: buf lint
